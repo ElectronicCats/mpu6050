@@ -39,6 +39,10 @@ setMotionDetectionThreshold KEYWORD2
 getMotionDetectionDuration  KEYWORD2
 setMotionDetectionDuration  KEYWORD2
 
+CalibrateGyro   KEYWORD2
+CalibrateAccel  KEYWORD2
+PID KEYWORD2
+PrintActiveOffsets  KEYWORD2
 
 #######################################
 # Constants (LITERAL1)

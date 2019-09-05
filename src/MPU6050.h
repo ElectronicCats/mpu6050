@@ -44,6 +44,8 @@ THE SOFTWARE.
 
 #ifdef __AVR__
 #include <avr/pgmspace.h>
+#elif defined(ARDUINO_ARCH_SAMD)
+#include <avr/dtostrf.h>
 #else
 //#define PROGMEM /* empty */
 //#define pgm_read_byte(x) (*(x))

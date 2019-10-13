@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ElectronicCats/mpu6050.svg?branch=master)](https://travis-ci.org/ElectronicCats/mpu6050)
+
 # MPU6050 by Electronic Cats
 
 MPU-6050 6-axis accelerometer/gyroscope Arduino Library

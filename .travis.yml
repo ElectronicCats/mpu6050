@@ -1,0 +1,25 @@
+language: generic
+env:
+  global:
+    - IDE_VERSION=1.8.9
+  matrix:
+    - BOARD="arduino:avr:uno"
+    - BOARD="arduino:avr:micro"
+    - BOARD="arduino:avr:mega:cpu=atmega2560"
+    - BOARD="arduino:samd:arduino_zero_edbg"
+    - BOARD="arduino:samd:mkr1000"
+    - BOARD="arduino:samd:mkrzero"
+before_install:
+  - wget http://downloads.arduino.cc/arduino-$IDE_VERSION-linux64.tar.xz
+  - tar xf arduino-$IDE_VERSION-linux64.tar.xz
+  - mv arduino-$IDE_VERSION $HOME/arduino-ide
+  - export PATH=$PATH:$HOME/arduino-ide
+  - if [[ "$BOARD" =~ "arduino:samd:" ]]; then
+      arduino --install-boards arduino:samd &> /dev/null;
+    fi
+  - buildExampleSketch() { find $PWD -name "*.ino" | while read sketch; do arduino --verbose-build --verify --board $BOARD $sketch; done }
+install:
+  - mkdir -p $HOME/Arduino/libraries
+  - ln -s $PWD $HOME/Arduino/libraries/mpu6050
+script:
+  - buildExampleSketch

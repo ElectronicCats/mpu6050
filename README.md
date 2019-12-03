@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ElectronicCats/mpu6050.svg?branch=master)](https://travis-ci.org/ElectronicCats/mpu6050)
+
 # MPU6050 by Electronic Cats
 
 MPU-6050 6-axis accelerometer/gyroscope Arduino Library
@@ -5,6 +7,22 @@ adapted for Arduino Library Manager by Electronic Cats, Feb 2019
 
 The MPU6050 combines a 3-axis gyroscope and a 3-axis accelerometer on the same silicon die together with
 an onboard Digital Motion Processor(DMP) which processes complex 6-axis MotionFusion algorithms.
+
+### Quick Installing
+
+To install, use the Arduino Library Manager and search for "mpu6050" and install the library.
+
+### Manual Installing
+To install this library:
+
+ - install it using the Arduino Library manager ("Sketch" -> "Include
+   Library" -> "Manage Libraries..."), or
+ - download a zipfile from github using the "Download ZIP" button and
+   install it using the IDE ("Sketch" -> "Include Library" -> "Add .ZIP
+   Library..."
+ - clone this git repository into your sketchbook/libraries folder.
+
+For more info, see https://www.arduino.cc/en/Guide/Libraries
 
 ## Features of this version
 

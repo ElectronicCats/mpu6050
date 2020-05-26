@@ -15,6 +15,10 @@ jobs:
 
     runs-on: ubuntu-latest # I picked Ubuntu to use shell scripts.
 
+    env:
+      # Comma separated list without double quotes around the list. 
+      REQUIRED_LIBRARIES: Ethernet
+
     strategy:
       matrix:
         # The matrix will produce one job for each configuration parameter of type `arduino-boards-fqbn`
@@ -41,18 +45,23 @@ jobs:
         #############################################################################################################
         include:
           - arduino-boards-fqbn: arduino:avr:uno
+            examples-exclude: MPU6050_DMP6_ESPWiFi
 
           - arduino-boards-fqbn: arduino:avr:leonardo
+            examples-exclude: MPU6050_DMP6_ESPWiFi
           
           - arduino-boards-fqbn: arduino:samd:nano_33_iot
+            examples-exclude: MPU6050_DMP6_ESPWiFi
           
           - arduino-boards-fqbn: arduino:mbed:nano33ble
+            examples-exclude: MPU6050_DMP6_ESPWiFi
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
             platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
 
           - arduino-boards-fqbn: STM32:stm32:GenF1:pnum=BLUEPILL_F103C8
             platform-url: https://github.com/stm32duino/BoardManagerFiles/raw/dev/STM32/package_stm_index.json
+            examples-exclude: MPU6050_DMP6_ESPWiFi
 
       # Do not cancel all jobs / architectures if one job fails
       fail-fast: false
@@ -69,3 +78,4 @@ jobs:
         with:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
           platform-url: ${{ matrix.platform-url }}
+          examples-exclude: ${{ matrix.examples-exclude }}

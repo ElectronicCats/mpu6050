@@ -284,14 +284,14 @@ void loop() {
 			// This is blocking so don't do it   while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
 	}
     // check for overflow (this should never happen unless our code is too inefficient)
-    else if ((mpuIntStatus & 0x01 << (MPU6050_INTERRUPT_FIFO_OFLOW_BIT)) || fifoCount >= 1024) {
+    else if ((mpuIntStatus & (0x01 << MPU6050_INTERRUPT_FIFO_OFLOW_BIT)) || fifoCount >= 1024) {
         // reset so we can continue cleanly
         mpu.resetFIFO();
       //  fifoCount = mpu.getFIFOCount();  // will be zero after reset no need to ask
         Serial.println(F("FIFO overflow!"));
 
     // otherwise, check for DMP data ready interrupt (this should happen frequently)
-    } else if (mpuIntStatus & 0x01 << (MPU6050_INTERRUPT_DMP_INT_BIT)) {
+    } else if (mpuIntStatus & (0x01 << MPU6050_INTERRUPT_DMP_INT_BIT)) {
 
         // read a packet from FIFO
 	while(fifoCount >= packetSize){ // Lets catch up to NOW, someone is using the dreaded delay()!

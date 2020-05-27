@@ -17,7 +17,7 @@ jobs:
 
     env:
       # Comma separated list without double quotes around the list. 
-      required_libraries: OSC
+      REQUIRED_LIBRARIES: OSC
 
     strategy:
       matrix:
@@ -35,7 +35,6 @@ jobs:
           - arduino:avr:uno
           - arduino:avr:leonardo
           - arduino:samd:nano_33_iot
-          - arduino:mbed:nano33ble
           - esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
           - STM32:stm32:GenF1:pnum=BLUEPILL_F103C8
 
@@ -52,9 +51,6 @@ jobs:
           
           - arduino-boards-fqbn: arduino:samd:nano_33_iot
             examples-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet
-          
-          - arduino-boards-fqbn: arduino:mbed:nano33ble
-            examples-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet,IMU_Zero
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
             platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
@@ -80,4 +76,4 @@ jobs:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
           platform-url: ${{ matrix.platform-url }}
           examples-exclude: ${{ matrix.examples-exclude }}
-          env_required_libraries: ${{ env.required_libraries }}
+          env_required_libraries: ${{ env.REQUIRED_LIBRARIES }}

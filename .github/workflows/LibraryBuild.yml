@@ -74,6 +74,6 @@ jobs:
         uses: ArminJo/arduino-test-compile@master
         with:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
+          required-libraries: ${{ env.REQUIRED_LIBRARIES }}
           platform-url: ${{ matrix.platform-url }}
           examples-exclude: ${{ matrix.examples-exclude }}
-          env_required_libraries: ${{ env.REQUIRED_LIBRARIES }}

@@ -17,7 +17,7 @@ jobs:
 
     env:
       # Comma separated list without double quotes around the list. 
-      REQUIRED_LIBRARIES: OSC
+      required_libraries: OSC
 
     strategy:
       matrix:
@@ -54,7 +54,7 @@ jobs:
             examples-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet
           
           - arduino-boards-fqbn: arduino:mbed:nano33ble
-            examples-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet
+            examples-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet,IMU_Zero
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
             platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
@@ -80,3 +80,4 @@ jobs:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
           platform-url: ${{ matrix.platform-url }}
           examples-exclude: ${{ matrix.examples-exclude }}
+          env_required_libraries: ${{ env.required_libraries }}

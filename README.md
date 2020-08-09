@@ -1,7 +1,3 @@
-<a href="https://github.com/sponsors/ElectronicCats">
-  <img src="https://electroniccats.com/wp-content/uploads/2020/07/Badge_GHS.png" height="104" />
-</a>
-
 [![Build Status](https://travis-ci.org/ElectronicCats/mpu6050.svg?branch=master)](https://travis-ci.org/ElectronicCats/mpu6050)
 
 # MPU6050 by Electronic Cats
@@ -38,6 +34,10 @@ For more info, see https://www.arduino.cc/en/Guide/Libraries
 Based in the work of [jrowberg/i2cdevlib](https://github.com/jrowberg/i2cdevlib/tree/master/Arduino/MPU6050)
 
 ### Maintainer
+
+<a href="https://github.com/sponsors/ElectronicCats">
+  <img src="https://electroniccats.com/wp-content/uploads/2020/07/Badge_GHS.png" height="104" />
+</a>
 
 Electronic Cats invests time and resources providing this open source design, please support Electronic Cats and open-source hardware by purchasing products from Electronic Cats!
 

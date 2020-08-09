@@ -37,7 +37,6 @@ jobs:
           - arduino:samd:nano_33_iot
           - esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
           - esp32:esp32:featheresp32:FlashFreq=80
-          - STM32:stm32:GenF1:pnum=BLUEPILL_F103C8
 
         # Specify parameters for each board.
         # Parameters can be: platform-url, examples-exclude and examples-build-properties
@@ -60,10 +59,6 @@ jobs:
           - arduino-boards-fqbn: esp32:esp32:featheresp32:FlashFreq=80
             platform-url: https://dl.espressif.com/dl/package_esp32_index.json
             examples-exclude: MPU6050_DMP6_Ethernet
-
-          - arduino-boards-fqbn: STM32:stm32:GenF1:pnum=BLUEPILL_F103C8
-            platform-url: https://github.com/stm32duino/BoardManagerFiles/raw/dev/STM32/package_stm_index.json
-            examples-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet
 
       # Do not cancel all jobs / architectures if one job fails
       fail-fast: false

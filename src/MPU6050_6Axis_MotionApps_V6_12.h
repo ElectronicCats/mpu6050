@@ -50,6 +50,8 @@ THE SOFTWARE.
 // http://forum.arduino.cc/index.php?topic=129407.0
 #ifdef __AVR__
     #include <avr/pgmspace.h>
+#elif defined(ESP8266) || defined(ESP32)
+ #include <pgmspace.h>
 #else
     // Teensy 3.0 library conditional PROGMEM code from Paul Stoffregen
     #ifndef __PGMSPACE_H_
@@ -60,7 +62,7 @@ THE SOFTWARE.
         #define PGM_P  const char *
         #define PSTR(str) (str)
         #define F(x) x
-
+    
         typedef void prog_void;
         typedef char prog_char;
         typedef unsigned char prog_uchar;

@@ -24,10 +24,10 @@ THE SOFTWARE.
 
 /* This driver reads quaternion data from the MPU6060 and sends
    Open Sound Control messages.
-
-  GY-521  NodeMCU
+  
+  GY-521  ESP32
   MPU6050 devkit 1.0
-  board   Lolin         Description
+  board   ESP8266        Description
   ======= ==========    ====================================================
   VCC     VU (5V USB)   Not available on all boards so use 3.3V if needed.
   GND     G             Ground
@@ -366,7 +366,11 @@ void loop(void)
     Serial.println();
     Serial.println("*** Disconnected from AP so rebooting ***");
     Serial.println();
+    #if defined(ESP8266)
     ESP.reset();
+    #else
+    ESP.restart();
+    #endif
   }
 
   mpu_loop();

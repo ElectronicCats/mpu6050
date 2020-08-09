@@ -36,6 +36,7 @@ jobs:
           - arduino:avr:leonardo
           - arduino:samd:nano_33_iot
           - esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
+          - esp32:esp32:featheresp32:FlashFreq=80
           - STM32:stm32:GenF1:pnum=BLUEPILL_F103C8
 
         # Specify parameters for each board.
@@ -54,6 +55,10 @@ jobs:
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
             platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
+            examples-exclude: MPU6050_DMP6_Ethernet
+            
+          - arduino-boards-fqbn: esp32:esp32:featheresp32:FlashFreq=80
+            platform-url: https://dl.espressif.com/dl/package_esp32_index.json
             examples-exclude: MPU6050_DMP6_Ethernet
 
           - arduino-boards-fqbn: STM32:stm32:GenF1:pnum=BLUEPILL_F103C8

@@ -39,26 +39,26 @@ jobs:
           - esp32:esp32:featheresp32:FlashFreq=80
 
         # Specify parameters for each board.
-        # Parameters can be: platform-url, examples-exclude and examples-build-properties
-        # With examples-exclude you may exclude specific examples for a board. Use a space separated list.
+        # Parameters can be: platform-url, sketches-exclude and examples-build-properties
+        # With sketches-exclude you may exclude specific examples for a board. Use a space separated list.
         #############################################################################################################
         include:
           - arduino-boards-fqbn: arduino:avr:uno
-            examples-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet
+            sketches-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet
 
           - arduino-boards-fqbn: arduino:avr:leonardo
-            examples-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet
+            sketches-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet
           
           - arduino-boards-fqbn: arduino:samd:nano_33_iot
-            examples-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet
+            sketches-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
             platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
-            examples-exclude: MPU6050_DMP6_Ethernet
+            sketches-exclude: MPU6050_DMP6_Ethernet
             
           - arduino-boards-fqbn: esp32:esp32:featheresp32:FlashFreq=80
             platform-url: https://dl.espressif.com/dl/package_esp32_index.json
-            examples-exclude: MPU6050_DMP6_Ethernet
+            sketches-exclude: MPU6050_DMP6_Ethernet
 
       # Do not cancel all jobs / architectures if one job fails
       fail-fast: false
@@ -71,9 +71,9 @@ jobs:
         uses: actions/checkout@master
 
       - name: Compile all examples
-        uses: ArminJo/arduino-test-compile@master
+        uses: ArminJo/arduino-test-compile@v3
         with:
           arduino-board-fqbn: ${{ matrix.arduino-boards-fqbn }}
           required-libraries: ${{ env.REQUIRED_LIBRARIES }}
           platform-url: ${{ matrix.platform-url }}
-          examples-exclude: ${{ matrix.examples-exclude }}
+          sketches-exclude: ${{ matrix.sketches-exclude }}

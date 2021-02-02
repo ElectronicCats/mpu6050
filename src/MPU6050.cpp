@@ -3327,4 +3327,27 @@ void MPU6050::PrintActiveOffsets() {
 	printfloatx("", Data[0], 5, 0, ",  ");
 	printfloatx("", Data[1], 5, 0, ",  ");
 	printfloatx("", Data[2], 5, 0, "\n");
+
+}
+
+void MPU6050::getActiveOffsets(int16_t Data[6]) {
+  uint8_t AOffsetRegister = (getDeviceID() < 0x38 ) ? MPU6050_RA_XA_OFFS_H : 0x77;
+  //  A_OFFSET_H_READ_A_OFFS(Data);
+  if (AOffsetRegister == 0x06) I2Cdev::readWords(devAddr, AOffsetRegister, 3, (uint16_t *)Data);
+  else {
+    I2Cdev::readWords(devAddr, AOffsetRegister, 1, (uint16_t *)Data);
+    I2Cdev::readWords(devAddr, AOffsetRegister + 3, 1, (uint16_t *)Data + 1);
+    I2Cdev::readWords(devAddr, AOffsetRegister + 6, 1, (uint16_t *)Data + 2);
+  }
+  //  XG_OFFSET_H_READ_OFFS_USR(Data);
+  I2Cdev::readWords(devAddr, 0x13, 3, (uint16_t *)Data + 3);
+}
+
+void MPU6050::setActiveOffsets(int16_t offsets[6]) {
+  this->setXAccelOffset(offsets[0]);
+  this->setYAccelOffset(offsets[1]);
+  this->setZAccelOffset(offsets[2]);
+  this->setXGyroOffset(offsets[3]);
+  this->setYGyroOffset(offsets[4]);
+  this->setZGyroOffset(offsets[5]);
 }

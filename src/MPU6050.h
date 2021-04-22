@@ -716,6 +716,7 @@ class MPU6050 {
 
         // FIFO_R_W register
         uint8_t getFIFOByte();
+		int8_t GetCurrentFIFOPacket(uint8_t *data, uint8_t length);
         void setFIFOByte(uint8_t data);
         void getFIFOBytes(uint8_t *data, uint8_t length);
 
@@ -827,7 +828,8 @@ class MPU6050 {
 		void CalibrateAccel(uint8_t Loops = 15);// Fine tune after setting offsets with less Loops.
 		void PID(uint8_t ReadAddress, float kP,float kI, uint8_t Loops);  // Does the math
 		void PrintActiveOffsets(); // See the results of the Calibration
-
+		void getActiveOffsets(int16_t offsets[6]); // Get the results of the Calibration  
+		void setActiveOffsets(int16_t offsets[6]); // Set offsets
 
 
         // special methods for MotionApps 2.0 implementation
@@ -927,6 +929,7 @@ class MPU6050 {
             uint32_t dmpGetAccelSumOfSquare();
             void dmpOverrideQuaternion(long *q);
             uint16_t dmpGetFIFOPacketSize();
+            uint8_t dmpGetCurrentFIFOPacket(uint8_t *data); // overflow proof
         #endif
 
         // special methods for MotionApps 4.1 implementation

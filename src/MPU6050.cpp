@@ -36,6 +36,7 @@ THE SOFTWARE.
 */
 
 #include "MPU6050.h"
+#include "api/deprecated-avr-comp/avr/dtostrf.c.impl"
 
 /** Specific address constructor.
  * @param address I2C address, uses default I2C address if none is specified

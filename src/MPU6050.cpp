@@ -36,6 +36,9 @@ THE SOFTWARE.
 */
 
 #include "MPU6050.h"
+#if defined(ARDUINO_ARCH_MBED)
+#include "api/deprecated-avr-comp/avr/dtostrf.c.impl"
+#endif
 
 /** Specific address constructor.
  * @param address I2C address, uses default I2C address if none is specified
@@ -2748,6 +2751,12 @@ void MPU6050::getFIFOBytes(uint8_t *data, uint8_t length) {
  *         2) when recovering from overflow
  *         0) when no valid data is available
  * ================================================================ */
+
+// I don't actually know how large this buffer is supposed to be, but
+// this seems like a good guess. This constant should properly be
+// defined elsewhere.
+#define FIFO_BUFFER_LENGTH 32
+
  int8_t MPU6050::GetCurrentFIFOPacket(uint8_t *data, uint8_t length) { // overflow proof
      int16_t fifoC;
      // This section of code is for when we allowed more than 1 packet to be acquired
@@ -2760,12 +2769,12 @@ void MPU6050::getFIFOBytes(uint8_t *data, uint8_t length) {
                  fifoC = 0;
                  while (!(fifoC = getFIFOCount()) && ((micros() - BreakTimer) <= (11000))); // Get Next New Packet
                  } else { //We have more than 1 packet but less than 200 bytes of data in the FIFO Buffer
-                 uint8_t Trash[BUFFER_LENGTH];
+                 uint8_t Trash[FIFO_BUFFER_LENGTH];
                  while ((fifoC = getFIFOCount()) > length) {  // Test each time just in case the MPU is writing to the FIFO Buffer
                      fifoC = fifoC - length; // Save the last packet
                      uint16_t  RemoveBytes;
                      while (fifoC) { // fifo count will reach zero so this is safe
-                         RemoveBytes = min((int)fifoC, BUFFER_LENGTH); // Buffer Length is different than the packet length this will efficiently clear the buffer
+                         RemoveBytes = min((int)fifoC, FIFO_BUFFER_LENGTH); // Buffer Length is different than the packet length this will efficiently clear the buffer
                          getFIFOBytes(Trash, (uint8_t)RemoveBytes);
                          fifoC -= RemoveBytes;
                      }

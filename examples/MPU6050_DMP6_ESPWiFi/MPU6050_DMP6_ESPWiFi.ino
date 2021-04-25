@@ -24,10 +24,10 @@ THE SOFTWARE.
 
 /* This driver reads quaternion data from the MPU6060 and sends
    Open Sound Control messages.
-  
-  GY-521  ESP32
+
+  GY-521  NodeMCU
   MPU6050 devkit 1.0
-  board   ESP8266        Description
+  board   Lolin         Description
   ======= ==========    ====================================================
   VCC     VU (5V USB)   Not available on all boards so use 3.3V if needed.
   GND     G             Ground
@@ -149,7 +149,7 @@ const unsigned int outPort = 9999;          // remote port to receive OSC
 // ================================================================
 
 volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
-void dmpDataReady() {
+void ICACHE_RAM_ATTR dmpDataReady() {
     mpuInterrupt = true;
 }
 

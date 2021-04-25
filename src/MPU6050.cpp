@@ -36,7 +36,9 @@ THE SOFTWARE.
 */
 
 #include "MPU6050.h"
+#if defined(ARDUINO_ARCH_MBED)
 #include "api/deprecated-avr-comp/avr/dtostrf.c.impl"
+#endif
 
 /** Specific address constructor.
  * @param address I2C address, uses default I2C address if none is specified

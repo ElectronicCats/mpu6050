@@ -68,7 +68,8 @@ void MPU6050::initialize() {
  * @return True if connection is valid, false otherwise
  */
 bool MPU6050::testConnection() {
-    return getDeviceID() == 0x34;
+    uint8_t deviceId = getDeviceID();
+    return (deviceId == 0x34) || (deviceId == 0x4C);
 }
 
 // AUX_VDDIO register (InvenSense demo code calls this RA_*G_OFFS_TC)
@@ -2801,8 +2802,8 @@ void MPU6050::setFIFOByte(uint8_t data) {
 // WHO_AM_I register
 
 /** Get Device ID.
- * This register is used to verify the identity of the device (0b110100, 0x34).
- * @return Device ID (6 bits only! should be 0x34)
+ * This register is used to verify the identity of the device (ideally 0b110100, 0x34).
+ * @return Device ID (6 bits only! should be 0x34 or 0x4C for some clones)
  * @see MPU6050_RA_WHO_AM_I
  * @see MPU6050_WHO_AM_I_BIT
  * @see MPU6050_WHO_AM_I_LENGTH

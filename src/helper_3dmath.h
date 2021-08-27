@@ -75,11 +75,11 @@ class Quaternion {
         }
         
         void normalize() {
-            float m = getMagnitude();
-            w /= m;
-            x /= m;
-            y /= m;
-            z /= m;
+            const float im = 1.0f / getMagnitude();
+            w *= im;
+            x *= im;
+            y *= im;
+            z *= im;
         }
         
         Quaternion getNormalized() {
@@ -112,10 +112,10 @@ class VectorInt16 {
         }
 
         void normalize() {
-            float m = getMagnitude();
-            x /= m;
-            y /= m;
-            z /= m;
+            const float im = 1.0f / getMagnitude();
+            x *= im;
+            y *= im;
+            z *= im;
         }
         
         VectorInt16 getNormalized() {
@@ -179,10 +179,10 @@ class VectorFloat {
         }
 
         void normalize() {
-            float m = getMagnitude();
-            x /= m;
-            y /= m;
-            z /= m;
+            const float m = 1.0f / getMagnitude();
+            x *= m;
+            y *= m;
+            z *= m;
         }
         
         VectorFloat getNormalized() {

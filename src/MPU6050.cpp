@@ -40,6 +40,11 @@ THE SOFTWARE.
 #include "api/deprecated-avr-comp/avr/dtostrf.c.impl"
 #endif
 
+#ifndef BUFFER_LENGTH
+// band-aid fix for platforms without Wire-defined BUFFER_LENGTH (removed from some official implementations)
+#define BUFFER_LENGTH 32
+#endif
+
 /** Specific address constructor.
  * @param address I2C address, uses default I2C address if none is specified
  * @see MPU6050_DEFAULT_ADDRESS
@@ -2752,12 +2757,6 @@ void MPU6050::getFIFOBytes(uint8_t *data, uint8_t length) {
  *         2) when recovering from overflow
  *         0) when no valid data is available
  * ================================================================ */
-
-// I don't actually know how large this buffer is supposed to be, but
-// this seems like a good guess. This constant should properly be
-// defined elsewhere.
-#define FIFO_BUFFER_LENGTH 32
-
  int8_t MPU6050::GetCurrentFIFOPacket(uint8_t *data, uint8_t length) { // overflow proof
      int16_t fifoC;
      // This section of code is for when we allowed more than 1 packet to be acquired
@@ -2770,12 +2769,12 @@ void MPU6050::getFIFOBytes(uint8_t *data, uint8_t length) {
                  fifoC = 0;
                  while (!(fifoC = getFIFOCount()) && ((micros() - BreakTimer) <= (11000))); // Get Next New Packet
                  } else { //We have more than 1 packet but less than 200 bytes of data in the FIFO Buffer
-                 uint8_t Trash[FIFO_BUFFER_LENGTH];
+                 uint8_t Trash[BUFFER_LENGTH];
                  while ((fifoC = getFIFOCount()) > length) {  // Test each time just in case the MPU is writing to the FIFO Buffer
                      fifoC = fifoC - length; // Save the last packet
                      uint16_t  RemoveBytes;
                      while (fifoC) { // fifo count will reach zero so this is safe
-                         RemoveBytes = min((int)fifoC, FIFO_BUFFER_LENGTH); // Buffer Length is different than the packet length this will efficiently clear the buffer
+                         RemoveBytes = min((int)fifoC, BUFFER_LENGTH); // Buffer Length is different than the packet length this will efficiently clear the buffer
                          getFIFOBytes(Trash, (uint8_t)RemoveBytes);
                          fifoC -= RemoveBytes;
                      }
@@ -2802,8 +2801,8 @@ void MPU6050::setFIFOByte(uint8_t data) {
 // WHO_AM_I register
 
 /** Get Device ID.
- * This register is used to verify the identity of the device (ideally 0b110100, 0x34).
- * @return Device ID (6 bits only! should be 0x34 or 0x4C for some clones)
+ * This register is used to verify the identity of the device (0b110100, 0x34).
+ * @return Device ID (6 bits only! should be 0x34)
  * @see MPU6050_RA_WHO_AM_I
  * @see MPU6050_WHO_AM_I_BIT
  * @see MPU6050_WHO_AM_I_LENGTH
@@ -3378,27 +3377,4 @@ void MPU6050::PrintActiveOffsets() {
 	printfloatx("", Data[0], 5, 0, ",  ");
 	printfloatx("", Data[1], 5, 0, ",  ");
 	printfloatx("", Data[2], 5, 0, "\n");
-
-}
-
-void MPU6050::getActiveOffsets(int16_t Data[6]) {
-  uint8_t AOffsetRegister = (getDeviceID() < 0x38 ) ? MPU6050_RA_XA_OFFS_H : 0x77;
-  //  A_OFFSET_H_READ_A_OFFS(Data);
-  if (AOffsetRegister == 0x06) I2Cdev::readWords(devAddr, AOffsetRegister, 3, (uint16_t *)Data);
-  else {
-    I2Cdev::readWords(devAddr, AOffsetRegister, 1, (uint16_t *)Data);
-    I2Cdev::readWords(devAddr, AOffsetRegister + 3, 1, (uint16_t *)Data + 1);
-    I2Cdev::readWords(devAddr, AOffsetRegister + 6, 1, (uint16_t *)Data + 2);
-  }
-  //  XG_OFFSET_H_READ_OFFS_USR(Data);
-  I2Cdev::readWords(devAddr, 0x13, 3, (uint16_t *)Data + 3);
-}
-
-void MPU6050::setActiveOffsets(int16_t offsets[6]) {
-  this->setXAccelOffset(offsets[0]);
-  this->setYAccelOffset(offsets[1]);
-  this->setZAccelOffset(offsets[2]);
-  this->setXGyroOffset(offsets[3]);
-  this->setYGyroOffset(offsets[4]);
-  this->setZGyroOffset(offsets[5]);
 }

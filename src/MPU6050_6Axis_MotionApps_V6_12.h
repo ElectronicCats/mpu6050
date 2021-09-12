@@ -62,7 +62,7 @@ THE SOFTWARE.
         #define PGM_P  const char *
         #define PSTR(str) (str)
         #define F(x) x
-    
+
         typedef void prog_void;
         typedef char prog_char;
         typedef unsigned char prog_uchar;

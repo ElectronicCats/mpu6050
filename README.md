@@ -28,6 +28,7 @@ For more info, see https://www.arduino.cc/en/Guide/Libraries
 
 - Support for SAMD21 or ARM
 - Support ESP32 and ESP8266
+- Support for SAM
 
 ### Original Library
 

@@ -74,7 +74,7 @@ void MPU6050::initialize() {
  */
 bool MPU6050::testConnection() {
     uint8_t deviceId = getDeviceID();
-    return (deviceId == 0x34) || (deviceId == 0x4C);
+    return (deviceId == 0x34) || (deviceId == 0xC);
 }
 
 // AUX_VDDIO register (InvenSense demo code calls this RA_*G_OFFS_TC)

@@ -44,7 +44,7 @@ THE SOFTWARE.
 
 #ifdef __AVR__
 #include <avr/pgmspace.h>
-#elif defined(ARDUINO_ARCH_SAMD)
+#elif defined(ARDUINO_ARCH_SAMD) || defined(ARDUINO_ARCH_SAM)
 #include <avr/dtostrf.h>
     #ifndef BUFFER_LENGTH
         #define BUFFER_LENGTH 32

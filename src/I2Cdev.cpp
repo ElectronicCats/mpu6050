@@ -3,6 +3,7 @@
 // 2013-06-05 by Jeff Rowberg <jeff@rowberg.net>
 //
 // Changelog:
+//		2022-01-27 - workaround for the ESP32 Wire implementation (mcpicoli)
 //      2013-05-06 - add Francesco Ferrara's Fastwire v0.24 implementation with small modifications
 //      2013-05-05 - fix issue with writing bit values to words (Sasquatch/Farzanegan)
 //      2012-06-09 - fix major issue with reading > 32 bytes at a time with Arduino Wire
@@ -281,8 +282,12 @@ int8_t I2Cdev::readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8
             for (uint8_t k = 0; k < length; k += min((int)length, BUFFER_LENGTH)) {
                 Wire.beginTransmission(devAddr);
                 Wire.write(regAddr);
-                Wire.endTransmission();
-                Wire.beginTransmission(devAddr);
+				#ifdef ARDUINO_ARCH_ESP32
+					Wire.endTransmission(false);
+				#else
+					Wire.endTransmission();
+					Wire.beginTransmission(devAddr);
+				#endif
                 Wire.requestFrom(devAddr, (uint8_t)min(length - k, BUFFER_LENGTH));
         
                 for (; Wire.available() && (timeout == 0 || millis() - t1 < timeout); count++) {

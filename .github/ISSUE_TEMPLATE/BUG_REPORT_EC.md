@@ -1,5 +1,5 @@
 ---
-name: "\U0001F408 Bug report "
+name: "\U0001F640 Bug report "
 about: Report a bug or unexpected behavior while using the MPU6050 library
 title: 'ElectronicCats'
 labels: bug
@@ -14,7 +14,7 @@ labels: bug
 Any feedback/suggestions should be discussed on the [feedback section](https://github.com/ElectronicCats/mpu6050/issues):
   * Just click on New Issue and select the correct category.
 
-&#x1F640; When reporting any issue, please try to provide all relevant information to help on its resolution.
+When reporting any issue, please try to provide all relevant information to help on its resolution.
 
 
 **Describe the bug**

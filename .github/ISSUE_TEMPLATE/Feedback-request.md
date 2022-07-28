@@ -17,4 +17,4 @@ Please describe clearly and concisely the problem you are aware of.
 If you found a way to fix the problem please let us know.
 It would be very helpful if you put the part of the code that needs to be corrected and how it needs to be corrected.
 
-&#128008;&#128008; ***Thanks a lot*** &#128008;&#128008;
+***Thanks a lot***

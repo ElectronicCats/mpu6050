@@ -170,7 +170,7 @@ namespace MPU6050_IMU{
     MPU6050_RA_EXT_SENS_DATA_22,
     MPU6050_RA_EXT_SENS_DATA_23  = 0x60,
     MPU6050_RA_MOT_DETECT_STATUS,
-    MPU6050_RA_I2C_SLV0_DO,
+    MPU6050_RA_I2C_SLV0_DO       = 0x63,
     MPU6050_RA_I2C_SLV1_DO,
     MPU6050_RA_I2C_SLV2_DO,
     MPU6050_RA_I2C_SLV3_DO,
@@ -536,7 +536,7 @@ namespace MPU6050_IMU{
     MPU6050_CLOCK_PLL_ZGYRO,
     MPU6050_CLOCK_PLL_EXT32K,
     MPU6050_CLOCK_PLL_EXT19M,
-    MPU6050_CLOCK_KEEP_RESET,
+    MPU6050_CLOCK_KEEP_RESET  =      0x07,
   };
 
   /*****************************PWR_MGMT_2 definitions****************************/
@@ -561,8 +561,8 @@ namespace MPU6050_IMU{
   };
 
   /*WHO_AM_I definitions*/
-  constexpr uint8_t  MPU6050_WHO_AM_I_BIT  =  7;
-  constexpr uint8_t  MPU6050_WHO_AM_I_LENGTH  =  8;
+  constexpr uint8_t  MPU6050_WHO_AM_I_BIT  =  6;
+  constexpr uint8_t  MPU6050_WHO_AM_I_LENGTH  =  6;
 
   /*memory block definitions*/
   constexpr uint8_t MPU6050_DMP_MEMORY_BANKS  =  8;

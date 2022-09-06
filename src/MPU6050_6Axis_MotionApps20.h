@@ -315,22 +315,22 @@ uint8_t MPU6050::dmpInitialize() {
 	resetI2CMaster();
 	delay(20);
 	DEBUG_PRINTLN(F("Setting clock source to Z Gyro..."));
-	setClockSource(MPU6050_CLOCK_PLL_ZGYRO);
+	setClockSource(MPU6050_IMU::MPU6050_CLOCK_PLL_ZGYRO);
 
 	DEBUG_PRINTLN(F("Setting DMP and FIFO_OFLOW interrupts enabled..."));
-	setIntEnabled(1<<MPU6050_INTERRUPT_FIFO_OFLOW_BIT|1<<MPU6050_INTERRUPT_DMP_INT_BIT);
+	setIntEnabled((1<<(MPU6050_IMU::MPU6050_INTERRUPT_FIFO_OFLOW_BIT))|(1<<(MPU6050_IMU::MPU6050_INTERRUPT_DMP_INT_BIT)));
 
 	DEBUG_PRINTLN(F("Setting sample rate to 200Hz..."));
 	setRate(4); // 1khz / (1 + 4) = 200 Hz
 
 	DEBUG_PRINTLN(F("Setting external frame sync to TEMP_OUT_L[0]..."));
-	setExternalFrameSync(MPU6050_EXT_SYNC_TEMP_OUT_L);
+	setExternalFrameSync(MPU6050_IMU::MPU6050_EXT_SYNC_TEMP_OUT_L);
 
 	DEBUG_PRINTLN(F("Setting DLPF bandwidth to 42Hz..."));
-	setDLPFMode(MPU6050_DLPF_BW_42);
+	setDLPFMode(MPU6050_IMU::MPU6050_DLPF_BW_42);
 
 	DEBUG_PRINTLN(F("Setting gyro sensitivity to +/- 2000 deg/sec..."));
-	setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
+	setFullScaleGyroRange(MPU6050_IMU::MPU6050_GYRO_FS_2000);
 
 	// load DMP code into memory banks
 	DEBUG_PRINT(F("Writing DMP code to MPU memory banks ("));

@@ -1,4 +1,4 @@
-![LibraryBuild](https://github.com/ElectronicCats/mpu6050/workflows/LibraryBuild/badge.svg?branch=master)
+[![LibraryBuild](https://github.com/ElectronicCats/mpu6050/actions/workflows/LibraryBuild.yml/badge.svg)](https://github.com/ElectronicCats/mpu6050/actions/workflows/LibraryBuild.yml)
 
 # MPU6050 by Electronic Cats
 

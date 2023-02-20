@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/ElectronicCats/mpu6050.svg?branch=master)](https://travis-ci.org/ElectronicCats/mpu6050)
+![LibraryBuild](https://github.com/ElectronicCats/mpu6050/workflows/LibraryBuild/badge.svg?branch=master)
 
 # MPU6050 by Electronic Cats
 

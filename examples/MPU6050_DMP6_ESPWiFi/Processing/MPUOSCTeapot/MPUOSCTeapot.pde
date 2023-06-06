@@ -45,8 +45,7 @@ THE SOFTWARE.
  * Open Sound Control library
  *   oscP5 website at http://www.sojamo.de/oscP5
  * ToxicLibs
- *   quaternion functions http://toxiclibs.org/
- *
+ *   quaternion functions https://github.com/postspectacular/toxiclibs/
  */
 
 // Install oscP5 using the IDE library manager.
@@ -54,9 +53,9 @@ THE SOFTWARE.
 // In the search box type "osc".
 import oscP5.*;
 import netP5.*;
-// Install ToxicLibs using the IDE library manager
-// From the IDE menu bar, Sketch | Import Library | Add library.
-// In the search box type "toxic".
+// 1. Download from https://github.com/postspectacular/toxiclibs/releases
+// 2. Extract into [userdir]/Processing/libraries
+//    (location may be different on Mac/Linux)
 import toxi.geom.*;
 import toxi.processing.*;
 

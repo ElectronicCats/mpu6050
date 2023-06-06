@@ -35,7 +35,7 @@ import toxi.geom.*;
 import toxi.processing.*;
 
 // NOTE: requires ToxicLibs to be installed in order to run properly.
-// 1. Download from http://toxiclibs.org/downloads
+// 1. Download from https://github.com/postspectacular/toxiclibs/releases
 // 2. Extract into [userdir]/Processing/libraries
 //    (location may be different on Mac/Linux)
 // 3. Run and bask in awesomeness

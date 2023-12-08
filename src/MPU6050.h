@@ -1066,7 +1066,7 @@ class MPU6050 {
             uint32_t dmpGetAccelSumOfSquare();
             void dmpOverrideQuaternion(long *q);
             uint16_t dmpGetFIFOPacketSize();
-            void MPU6050::dmpSetFIFOPacketSize(uint16_t packetSize);
+            void dmpSetFIFOPacketSize(uint16_t packetSize);
 
             uint8_t dmpGetCurrentFIFOPacket(uint8_t *data); // overflow proof
         #endif

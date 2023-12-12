@@ -614,7 +614,9 @@ uint16_t MPU6050::dmpGetFIFOPacketSize() {
     return dmpPacketSize;
 }
 
-
+void MPU6050::dmpSetFIFOPacketSize(uint16_t packetSize) {
+    dmpPacketSize = packetSize;
+}
 
 uint8_t MPU6050::dmpGetCurrentFIFOPacket(uint8_t *data) { // overflow proof
     return(GetCurrentFIFOPacket(data, dmpPacketSize));

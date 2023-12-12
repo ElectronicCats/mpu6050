@@ -37,6 +37,7 @@ jobs:
           - arduino:samd:nano_33_iot
           - esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
           - esp32:esp32:featheresp32:FlashFreq=80
+          - lgt8fx:avr:328:variant=modelP
 
         # Specify parameters for each board.
         # Parameters can be: platform-url, sketches-exclude and examples-build-properties
@@ -44,20 +45,24 @@ jobs:
         #############################################################################################################
         include:
           - arduino-boards-fqbn: arduino:avr:uno
-            sketches-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet
+            sketches-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet,MCU_Powercycle_DMP6
 
           - arduino-boards-fqbn: arduino:avr:leonardo
-            sketches-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet
+            sketches-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet,MCU_Powercycle_DMP6
           
           - arduino-boards-fqbn: arduino:samd:nano_33_iot
-            sketches-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet
+            sketches-exclude: MPU6050_DMP6_ESPWiFi,MPU6050_DMP6_Ethernet,MCU_Powercycle_DMP6
 
           - arduino-boards-fqbn: esp8266:esp8266:huzzah:eesz=4M3M,xtal=80
             platform-url: https://arduino.esp8266.com/stable/package_esp8266com_index.json
-            sketches-exclude: MPU6050_DMP6_Ethernet
+            sketches-exclude: MPU6050_DMP6_Ethernet,MCU_Powercycle_DMP6
             
           - arduino-boards-fqbn: esp32:esp32:featheresp32:FlashFreq=80
             platform-url: https://dl.espressif.com/dl/package_esp32_index.json
+            sketches-exclude: MPU6050_DMP6_Ethernet,MCU_Powercycle_DMP6
+
+          - arduino-boards-fqbn: lgt8fx:avr:328:variant=modelP
+            platform-url: https://raw.githubusercontent.com/dbuezas/lgt8fx/master/package_lgt8fx_index.json
             sketches-exclude: MPU6050_DMP6_Ethernet
 
       # Do not cancel all jobs / architectures if one job fails

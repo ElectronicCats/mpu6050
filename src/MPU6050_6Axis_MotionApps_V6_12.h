@@ -351,7 +351,7 @@ const unsigned char dmpMemory[MPU6050_DMP_CODE_SIZE] PROGMEM = {
 
 // this is the most basic initialization I can create. with the intent that we access the register bytes as few times as needed to get the job done.
 // for detailed descriptins of all registers and there purpose google "MPU-6000/MPU-6050 Register Map and Descriptions"
-uint8_t MPU6050::dmpInitialize() { // Lets get it over with fast Write everything once and set it up necely
+uint8_t MPU6050::dmpInitialize(uint8_t rateDivisor = 0x04, uint8_t mpuAddr = 0x68) { // Lets get it over with fast Write everything once and set it up necely
 	uint8_t val;
 	uint16_t ival;
   // Reset procedure per instructions in the "MPU-6000/MPU-6050 Register Map and Descriptions" page 41
@@ -365,7 +365,7 @@ uint8_t MPU6050::dmpInitialize() { // Lets get it over with fast Write everythin
 	I2Cdev::writeBytes(devAddr,0x1C, 1, &(val = 0x00)); // 0000 0000 ACCEL_CONFIG: 0 =  Accel Full Scale Select: 2g
 	I2Cdev::writeBytes(devAddr,0x37, 1, &(val = 0x80)); // 1001 0000 INT_PIN_CFG: ACTL The logic level for int pin is active low. and interrupt status bits are cleared on any read
 	I2Cdev::writeBytes(devAddr,0x6B, 1, &(val = 0x01)); // 0000 0001 PWR_MGMT_1: Clock Source Select PLL_X_gyro
-	I2Cdev::writeBytes(devAddr,0x19, 1, &(val = 0x04)); // 0000 0100 SMPLRT_DIV: Divides the internal sample rate 400Hz ( Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV))
+	I2Cdev::writeBytes(devAddr,0x19, 1, &(val = rateDivisor)); // 0000 0100 SMPLRT_DIV: Divides the internal sample rate 400Hz ( Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV))
 	I2Cdev::writeBytes(devAddr,0x1A, 1, &(val = 0x01)); // 0000 0001 CONFIG: Digital Low Pass Filter (DLPF) Configuration 188HZ  //Im betting this will be the beat
 	if (!writeProgMemoryBlock(dmpMemory, MPU6050_DMP_CODE_SIZE)) return 1; // Loads the DMP image into the MPU6050 Memory // Should Never Fail
 	I2Cdev::writeWords(devAddr, 0x70, 1, &(ival = 0x0400)); // DMP Program Start Address

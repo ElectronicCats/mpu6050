@@ -351,7 +351,7 @@ const unsigned char dmpMemory[MPU6050_DMP_CODE_SIZE] PROGMEM = {
 
 // this is the most basic initialization I can create. with the intent that we access the register bytes as few times as needed to get the job done.
 // for detailed descriptins of all registers and there purpose google "MPU-6000/MPU-6050 Register Map and Descriptions"
-uint8_t MPU6050::dmpInitialize() { // Lets get it over with fast Write everything once and set it up necely
+uint8_t MPU6050::dmpInitialize(uint8_t rateDivisor = MPU6050_DMP_FIFO_RATE_DIVISOR, uint8_t mpuAddr = 0x68) { // Lets get it over with fast Write everything once and set it up necely
 	uint8_t val;
 	uint16_t ival;
   // Reset procedure per instructions in the "MPU-6000/MPU-6050 Register Map and Descriptions" page 41

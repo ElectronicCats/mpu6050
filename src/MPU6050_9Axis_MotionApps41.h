@@ -47,7 +47,7 @@ class MPU6050_9Axis_MotionApps41 : public MPU6050_Base {
     public:
         MPU6050_9Axis_MotionApps41(uint8_t address=MPU6050_DEFAULT_ADDRESS, void *wireObj=0) : MPU6050_Base(address, wireObj) { }
 
-         uint8_t dmpInitialize(uint8_t rateDivisor = MPU6050_DMP_FIFO_RATE_DIVISOR, uint8_t mpuAddr = 0x68);
+        uint8_t dmpInitialize();
         bool dmpPacketAvailable();
 
         uint8_t dmpSetFIFORate(uint8_t fifoRate);

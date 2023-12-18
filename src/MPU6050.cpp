@@ -3140,18 +3140,17 @@ bool MPU6050_Base::writeMemoryBlock(const uint8_t *data, uint16_t dataSize, uint
             setMemoryStartAddress(address);
             I2Cdev::readBytes(devAddr, MPU6050_RA_MEM_R_W, chunkSize, verifyBuffer, I2Cdev::readTimeout, wireObj);
             if (memcmp(progBuffer, verifyBuffer, chunkSize) != 0) {
-#ifdef DEBUG
-        Serial.print("Block write verification error, bank ");
-        Serial.print(bank, DEC);
-        Serial.print(", address ");
-        Serial.print(address, DEC);
-        Serial.print("!\nExpected:");
-        for (j = 0; j < chunkSize; j++) {
-          Serial.print(" 0x");
-          if (progBuffer[j] < 16) Serial.print("0");
-          Serial.print(progBuffer[j], HEX);
-        }
-        Serial.print("\nReceived:");
+                /*Serial.print("Block write verification error, bank ");
+                Serial.print(bank, DEC);
+                Serial.print(", address ");
+                Serial.print(address, DEC);
+                Serial.print("!\nExpected:");
+                for (j = 0; j < chunkSize; j++) {
+                    Serial.print(" 0x");
+                    if (progBuffer[j] < 16) Serial.print("0");
+                    Serial.print(progBuffer[j], HEX);
+                }
+                Serial.print("\nReceived:");
                 for (uint8_t j = 0; j < chunkSize; j++) {
                     Serial.print(" 0x");
                     if (verifyBuffer[i + j] < 16) Serial.print("0");

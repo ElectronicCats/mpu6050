@@ -35,19 +35,19 @@ THE SOFTWARE.
 ===============================================
 */
 
-#ifndef _MPU6050_6AXIS_MOTIONAPPS41_H_
-#define _MPU6050_6AXIS_MOTIONAPPS41_H_
+#ifndef _MPU6050_6AXIS_MOTIONAPPS612_H_
+#define _MPU6050_6AXIS_MOTIONAPPS612_H_
 
 // take ownership of the "MPU6050" typedef
 #define I2CDEVLIB_MPU6050_TYPEDEF
 
 #include "MPU6050.h"
 
-class MPU6050_9Axis_MotionApps41 : public MPU6050_Base {
+class MPU6050_6Axis_MotionApps612 : public MPU6050_Base {
     public:
-        MPU6050_9Axis_MotionApps41(uint8_t address=MPU6050_DEFAULT_ADDRESS, void *wireObj=0) : MPU6050_Base(address, wireObj) { }
+        MPU6050_6Axis_MotionApps612(uint8_t address=MPU6050_DEFAULT_ADDRESS, void *wireObj=0) : MPU6050_Base(address, wireObj) { }
 
-         uint8_t dmpInitialize(uint8_t rateDivisor = MPU6050_DMP_FIFO_RATE_DIVISOR, uint8_t mpuAddr = 0x68);
+        uint8_t dmpInitialize(uint8_t rateDivisor = MPU6050_DMP_FIFO_RATE_DIVISOR, uint8_t mpuAddr = 0x68);
         bool dmpPacketAvailable();
 
         uint8_t dmpSetFIFORate(uint8_t fifoRate);
@@ -91,7 +91,6 @@ class MPU6050_9Axis_MotionApps41 : public MPU6050_Base {
         uint8_t dmpGetGyro(int32_t *data, const uint8_t* packet=0);
         uint8_t dmpGetGyro(int16_t *data, const uint8_t* packet=0);
         uint8_t dmpGetGyro(VectorInt16 *v, const uint8_t* packet=0);
-        uint8_t dmpGetMag(int16_t *data, const uint8_t* packet=0);
         uint8_t dmpSetLinearAccelFilterCoefficient(float coef);
         uint8_t dmpGetLinearAccel(int32_t *data, const uint8_t* packet=0);
         uint8_t dmpGetLinearAccel(int16_t *data, const uint8_t* packet=0);
@@ -142,12 +141,13 @@ class MPU6050_9Axis_MotionApps41 : public MPU6050_Base {
         uint32_t dmpGetAccelSumOfSquare();
         void dmpOverrideQuaternion(long *q);
         uint16_t dmpGetFIFOPacketSize();
+        uint8_t dmpGetCurrentFIFOPacket(uint8_t *data); // overflow proof
 
     private:
         uint8_t *dmpPacketBuffer;
         uint16_t dmpPacketSize;
 };
 
-typedef MPU6050_9Axis_MotionApps41 MPU6050;
+typedef MPU6050_6Axis_MotionApps612 MPU6050;
 
-#endif /* _MPU6050_6AXIS_MOTIONAPPS41_H_ */
+#endif /* _MPU6050_6AXIS_MOTIONAPPS612_H_ */

@@ -4,11 +4,12 @@
 // Updates should (hopefully) always be available at https://github.com/jrowberg/i2cdevlib
 //
 // Changelog:
-// 2019/7/10 - I incorporated DMP Firmware Version 6.12 Latest as of today with many features and bug fixes.
-//           - MPU6050 Registers have not changed just the DMP Image so that full backwards compatibility is present
-//           - Run-time calibration routine is enabled which calibrates after no motion state is detected
-//           - once no motion state is detected Calibration completes within 0.5 seconds
-//           - The Drawback is that the firmware image is larger.
+//  2021/09/27 - split implementations out of header files, finally
+//  2019/07/10 - I incorporated DMP Firmware Version 6.12 Latest as of today with many features and bug fixes.
+//             - MPU6050 Registers have not changed just the DMP Image so that full backwards compatibility is present
+//             - Run-time calibration routine is enabled which calibrates after no motion state is detected
+//             - once no motion state is detected Calibration completes within 0.5 seconds
+//             - The Drawback is that the firmware image is larger.
 //     ... - ongoing debug release
 
 /* ============================================
@@ -35,23 +36,17 @@ THE SOFTWARE.
 ===============================================
 */
 
-#ifndef _MPU6050_6AXIS_MOTIONAPPS20_H_
-#define _MPU6050_6AXIS_MOTIONAPPS20_H_
-
-#include "I2Cdev.h"
-#include "helper_3dmath.h"
-
 // MotionApps 2.0 DMP implementation, built using the MPU-6050EVB evaluation board
-#define MPU6050_INCLUDE_DMP_MOTIONAPPS20 // same definitions Should work with V6.12
+#define MPU6050_INCLUDE_DMP_MOTIONAPPS612
 
-#include "MPU6050.h"
+#include "MPU6050_6Axis_MotionApps612.h"
 
 // Tom Carpenter's conditional PROGMEM code
 // http://forum.arduino.cc/index.php?topic=129407.0
 #ifdef __AVR__
     #include <avr/pgmspace.h>
-#elif defined(ESP8266) || defined(ESP32)
- #include <pgmspace.h>
+#elif defined(ESP32)
+    #include <pgmspace.h>
 #else
     // Teensy 3.0 library conditional PROGMEM code from Paul Stoffregen
     #ifndef __PGMSPACE_H_
@@ -320,7 +315,7 @@ const unsigned char dmpMemory[MPU6050_DMP_CODE_SIZE] PROGMEM = {
 0xC1, 0xC3, 0xD8, 0xB1, 0xB9, 0xF3, 0x8B, 0xA3, 0x91, 0xB6, 0x09, 0xB4, 0xD9, 0xAB, 0xDE, 0xB0,
 0x87, 0x9C, 0xB9, 0xA3, 0xDD, 0xF1, 0xB3, 0x8B, 0x8B, 0x8B, 0x8B, 0x8B, 0xB0, 0x87, 0x20, 0x28,
 0x30, 0x38, 0xB2, 0x8B, 0xB6, 0x9B, 0xF2, 0xA3, 0xC0, 0xC8, 0xC2, 0xC4, 0xCC, 0xC6, 0xA3, 0xA3,
-0xA3, 0xF1, 0xB0, 0x87, 0xB5, 0x9A, 0xD8, 0xF3, 0x9B, 0xA3, 0xA3, 0xDC, 0xBA, 0xAC, 0xDF, 0xB9,
+0xA3, 0xF1, 0xB0, 0x87, 0xB5, 0x9A, 0xD8, 0xF3, 0x9B, 0xA3, 0xA3, 0xDC, 0xBA, 0xAC, 0xDF, 0xB9, //Reverted back as packet size changes causing isues... TODO:change 2742 from 0xD8 to 0x20 Including the DMP_FEATURE_TAP -- known issue in which if you do not enable DMP_FEATURE_TAP then the interrupts will be at 200Hz even if fifo rate
 0xA3, 0xFE, 0xF2, 0xAB, 0xC4, 0xAA, 0xF1, 0xDF, 0xDF, 0xBB, 0xAF, 0xDF, 0xDF, 0xA3, 0xA3, 0xA3,
 0xD8, 0xD8, 0xD8, 0xBB, 0xB3, 0xB7, 0xF1, 0xAA, 0xF9, 0xDA, 0xFF, 0xD9, 0x80, 0x9A, 0xAA, 0x28,
 0xB4, 0x80, 0x98, 0xA7, 0x20, 0xB7, 0x97, 0x87, 0xA8, 0x66, 0x88, 0xF0, 0x79, 0x51, 0xF1, 0x90,
@@ -351,28 +346,28 @@ const unsigned char dmpMemory[MPU6050_DMP_CODE_SIZE] PROGMEM = {
 
 // this is the most basic initialization I can create. with the intent that we access the register bytes as few times as needed to get the job done.
 // for detailed descriptins of all registers and there purpose google "MPU-6000/MPU-6050 Register Map and Descriptions"
-uint8_t MPU6050::dmpInitialize() { // Lets get it over with fast Write everything once and set it up necely
+uint8_t MPU6050::dmpInitialize(uint8_t rateDivisor = 0x04, uint8_t mpuAddr = 0x68) { // Lets get it over with fast Write everything once and set it up necely
 	uint8_t val;
 	uint16_t ival;
   // Reset procedure per instructions in the "MPU-6000/MPU-6050 Register Map and Descriptions" page 41
-	I2Cdev::writeBit(devAddr,0x6B, 7, (val = 1)); //PWR_MGMT_1: reset with 100ms delay
+	I2Cdev::writeBit(devAddr,0x6B, 7, (val = 1), wireObj); //PWR_MGMT_1: reset with 100ms delay
 	delay(100);
-	I2Cdev::writeBits(devAddr,0x6A, 2, 3, (val = 0b111)); // full SIGNAL_PATH_RESET: with another 100ms delay
+	I2Cdev::writeBits(devAddr,0x6A, 2, 3, (val = 0b111), wireObj); // full SIGNAL_PATH_RESET: with another 100ms delay
 	delay(100);         
-	I2Cdev::writeBytes(devAddr,0x6B, 1, &(val = 0x01)); // 1000 0001 PWR_MGMT_1:Clock Source Select PLL_X_gyro
-	I2Cdev::writeBytes(devAddr,0x38, 1, &(val = 0x00)); // 0000 0000 INT_ENABLE: no Interrupt
-	I2Cdev::writeBytes(devAddr,0x23, 1, &(val = 0x00)); // 0000 0000 MPU FIFO_EN: (all off) Using DMP's FIFO instead
-	I2Cdev::writeBytes(devAddr,0x1C, 1, &(val = 0x00)); // 0000 0000 ACCEL_CONFIG: 0 =  Accel Full Scale Select: 2g
-	I2Cdev::writeBytes(devAddr,0x37, 1, &(val = 0x80)); // 1001 0000 INT_PIN_CFG: ACTL The logic level for int pin is active low. and interrupt status bits are cleared on any read
-	I2Cdev::writeBytes(devAddr,0x6B, 1, &(val = 0x01)); // 0000 0001 PWR_MGMT_1: Clock Source Select PLL_X_gyro
-	I2Cdev::writeBytes(devAddr,0x19, 1, &(val = 0x04)); // 0000 0100 SMPLRT_DIV: Divides the internal sample rate 400Hz ( Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV))
-	I2Cdev::writeBytes(devAddr,0x1A, 1, &(val = 0x01)); // 0000 0001 CONFIG: Digital Low Pass Filter (DLPF) Configuration 188HZ  //Im betting this will be the beat
+	I2Cdev::writeBytes(devAddr,0x6B, 1, &(val = 0x01), wireObj); // 1000 0001 PWR_MGMT_1:Clock Source Select PLL_X_gyro
+	I2Cdev::writeBytes(devAddr,0x38, 1, &(val = 0x00), wireObj); // 0000 0000 INT_ENABLE: no Interrupt
+	I2Cdev::writeBytes(devAddr,0x23, 1, &(val = 0x00), wireObj); // 0000 0000 MPU FIFO_EN: (all off) Using DMP's FIFO instead
+	I2Cdev::writeBytes(devAddr,0x1C, 1, &(val = 0x00), wireObj); // 0000 0000 ACCEL_CONFIG: 0 =  Accel Full Scale Select: 2g
+	I2Cdev::writeBytes(devAddr,0x37, 1, &(val = 0x80), wireObj); // 1001 0000 INT_PIN_CFG: ACTL The logic level for int pin is active low. and interrupt status bits are cleared on any read
+	I2Cdev::writeBytes(devAddr,0x6B, 1, &(val = 0x01), wireObj); // 0000 0001 PWR_MGMT_1: Clock Source Select PLL_X_gyro
+	I2Cdev::writeBytes(devAddr,0x19, 1, &(val = rateDivisor), wireObj); // 0000 0100 SMPLRT_DIV: Divides the internal sample rate 400Hz ( Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV))
+	I2Cdev::writeBytes(devAddr,0x1A, 1, &(val = 0x01), wireObj); // 0000 0001 CONFIG: Digital Low Pass Filter (DLPF) Configuration 188HZ  //Im betting this will be the beat
 	if (!writeProgMemoryBlock(dmpMemory, MPU6050_DMP_CODE_SIZE)) return 1; // Loads the DMP image into the MPU6050 Memory // Should Never Fail
-	I2Cdev::writeWords(devAddr, 0x70, 1, &(ival = 0x0400)); // DMP Program Start Address
-	I2Cdev::writeBytes(devAddr,0x1B, 1, &(val = 0x18)); // 0001 1000 GYRO_CONFIG: 3 = +2000 Deg/sec
-	I2Cdev::writeBytes(devAddr,0x6A, 1, &(val = 0xC0)); // 1100 1100 USER_CTRL: Enable Fifo and Reset Fifo
-	I2Cdev::writeBytes(devAddr,0x38, 1, &(val = 0x02)); // 0000 0010 INT_ENABLE: RAW_DMP_INT_EN on
-	I2Cdev::writeBit(devAddr,0x6A, 2, 1);      // Reset FIFO one last time just for kicks. (MPUi2cWrite reads 0x6A first and only alters 1 bit and then saves the byte)
+	I2Cdev::writeWords(devAddr, 0x70, 1, &(ival = 0x0400), wireObj); // DMP Program Start Address
+	I2Cdev::writeBytes(devAddr,0x1B, 1, &(val = 0x18), wireObj); // 0001 1000 GYRO_CONFIG: 3 = +2000 Deg/sec
+	I2Cdev::writeBytes(devAddr,0x6A, 1, &(val = 0xC0), wireObj); // 1100 1100 USER_CTRL: Enable Fifo and Reset Fifo
+	I2Cdev::writeBytes(devAddr,0x38, 1, &(val = 0x02), wireObj); // 0000 0010 INT_ENABLE: RAW_DMP_INT_EN on
+	I2Cdev::writeBit(devAddr,0x6A, 2, 1, wireObj);      // Reset FIFO one last time just for kicks. (MPUi2cWrite reads 0x6A first and only alters 1 bit and then saves the byte)
 
   setDMPEnabled(false); // disable DMP for compatibility with the MPU6050 library
 /*
@@ -495,10 +490,10 @@ uint8_t MPU6050::dmpGetGyro(VectorInt16 *v, const uint8_t* packet) {
 // uint8_t MPU6050::dmpSetLinearAccelFilterCoefficient(float coef);
 // uint8_t MPU6050::dmpGetLinearAccel(long *data, const uint8_t* packet);
 uint8_t MPU6050::dmpGetLinearAccel(VectorInt16 *v, VectorInt16 *vRaw, VectorFloat *gravity) {
-    // get rid of the gravity component (+1g = +8192 in standard DMP FIFO packet, sensitivity is 2g)
-    v -> x = vRaw -> x - gravity -> x*8192;
-    v -> y = vRaw -> y - gravity -> y*8192;
-    v -> z = vRaw -> z - gravity -> z*8192;
+    // get rid of the gravity component (+1g = +16384 in standard DMP FIFO packet, sensitivity is 2g)
+    v -> x = vRaw -> x - gravity -> x*16384;
+    v -> y = vRaw -> y - gravity -> y*16384;
+    v -> z = vRaw -> z - gravity -> z*16384;
     return 0;
 }
 // uint8_t MPU6050::dmpGetLinearAccelInWorld(long *data, const uint8_t* packet);
@@ -515,13 +510,13 @@ uint8_t MPU6050::dmpGetLinearAccelInWorld(VectorInt16 *v, VectorInt16 *vReal, Qu
 // uint8_t MPU6050::dmpGetTemperature(long *data, const uint8_t* packet);
 // uint8_t MPU6050::dmpGetGravity(long *data, const uint8_t* packet);
 uint8_t MPU6050::dmpGetGravity(int16_t *data, const uint8_t* packet) {
-    /* +1g corresponds to +8192, sensitivity is 2g. */
+    /* +1g corresponds to +16384, sensitivity is 2g. */
     int16_t qI[4];
     uint8_t status = dmpGetQuaternion(qI, packet);
     data[0] = ((int32_t)qI[1] * qI[3] - (int32_t)qI[0] * qI[2]) / 16384;
     data[1] = ((int32_t)qI[0] * qI[1] + (int32_t)qI[2] * qI[3]) / 16384;
     data[2] = ((int32_t)qI[0] * qI[0] - (int32_t)qI[1] * qI[1]
-	       - (int32_t)qI[2] * qI[2] + (int32_t)qI[3] * qI[3]) / (2 * 16384);
+	       - (int32_t)qI[2] * qI[2] + (int32_t)qI[3] * qI[3]) / (int32_t)(2 * 16384L);
     return status;
 }
 
@@ -576,6 +571,7 @@ uint8_t MPU6050::dmpGetYawPitchRoll(float *data, Quaternion *q, VectorFloat *gra
 // uint8_t MPU6050::dmpGetQuaternionFloat(float *data, const uint8_t* packet);
 
 uint8_t MPU6050::dmpProcessFIFOPacket(const unsigned char *dmpData) {
+    (void)dmpData; // unused parameter
     /*for (uint8_t k = 0; k < dmpPacketSize; k++) {
         if (dmpData[k] < 0x10) Serial.print("0");
         Serial.print(dmpData[k], HEX);
@@ -619,5 +615,3 @@ uint16_t MPU6050::dmpGetFIFOPacketSize() {
 uint8_t MPU6050::dmpGetCurrentFIFOPacket(uint8_t *data) { // overflow proof
     return(GetCurrentFIFOPacket(data, dmpPacketSize));
 }
-
-#endif /* _MPU6050_6AXIS_MOTIONAPPS20_H_ */

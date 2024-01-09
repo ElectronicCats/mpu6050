@@ -138,7 +138,7 @@ float MPU6050_Base::get_acce_resolution() {
 /** Get the gyroscope resolution.
  */
 float MPU6050_Base::get_gyro_resolution() {
-    return gyroscopeResolution
+    return gyroscopeResolution;
 }
 
 /** Verify the I2C connection.

@@ -64,7 +64,7 @@ MPU6050_Base::MPU6050_Base(uint8_t address, void *wireObj):devAddr(address), wir
  */
 void MPU6050_Base::initialize() {
     setClockSource(MPU6050_CLOCK_PLL_XGYRO);
-    
+
     setFullScaleGyroRange(MPU6050_GYRO_FS_250);
     gyroscopeResolution = 250.0 / 16384.0;
 
@@ -133,17 +133,16 @@ void MPU6050_Base::initialize(ACCEL_FS accelRange, GYRO_FS gyroRange) {
 
 /** Get the accelration resolution.
  */
-float MPU6050_Base::get_acce_resolution() const {
+float MPU6050_Base::get_acce_resolution() {
     return accelerationResolution;
 }
 
 /** Get the gyroscope resolution.
  */
-float MPU6050_Base::get_gyro_resolution() const {
+float MPU6050_Base::get_gyro_resolution() {
     return gyroscopeResolution
 }
 
-float 
 /** Verify the I2C connection.
  * Make sure the device is connected and responds as expected.
  * @return True if connection is valid, false otherwise

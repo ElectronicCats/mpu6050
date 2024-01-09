@@ -495,8 +495,8 @@ uint8_t MPU6050_6Axis_MotionApps20::dmpGetLinearAccel(VectorInt16 *v, VectorInt1
     v -> z = vRaw -> z - gravity -> z*8192;
     return 0;
 }
-// uint8_t MPU6050_6Axis_MotionApps20::dmpGetLinearAccelInWorld(long *data, const uint8_t* packet);
-uint8_t MPU6050_6Axis_MotionApps20::dmpGetLinearAccelInWorld(VectorInt16 *v, VectorInt16 *vReal, Quaternion *q) {
+// uint8_t MPU6050_6Axis_MotionApps20::dmpConvertToWorldFrame(long *data, const uint8_t* packet);
+uint8_t MPU6050_6Axis_MotionApps20::dmpConvertToWorldFrame(VectorInt16 *v, VectorInt16 *vReal, Quaternion *q) {
     // rotate measured 3D acceleration vector into original state
     // frame of reference based on orientation quaternion
     memcpy(v, vReal, sizeof(VectorInt16));

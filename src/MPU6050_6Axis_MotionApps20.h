@@ -96,10 +96,10 @@ class MPU6050_6Axis_MotionApps20 : public MPU6050_Base {
         uint8_t dmpGetLinearAccel(int16_t *data, const uint8_t* packet=0);
         uint8_t dmpGetLinearAccel(VectorInt16 *v, const uint8_t* packet=0);
         uint8_t dmpGetLinearAccel(VectorInt16 *v, VectorInt16 *vRaw, VectorFloat *gravity);
-        uint8_t dmpGetLinearAccelInWorld(int32_t *data, const uint8_t* packet=0);
-        uint8_t dmpGetLinearAccelInWorld(int16_t *data, const uint8_t* packet=0);
-        uint8_t dmpGetLinearAccelInWorld(VectorInt16 *v, const uint8_t* packet=0);
-        uint8_t dmpGetLinearAccelInWorld(VectorInt16 *v, VectorInt16 *vReal, Quaternion *q);
+        uint8_t dmpConvertToWorldFrame(int32_t *data, const uint8_t* packet=0);
+        uint8_t dmpConvertToWorldFrame(int16_t *data, const uint8_t* packet=0);
+        uint8_t dmpConvertToWorldFrame(VectorInt16 *v, const uint8_t* packet=0);
+        uint8_t dmpConvertToWorldFrame(VectorInt16 *v, VectorInt16 *vReal, Quaternion *q);
         uint8_t dmpGetGyroAndAccelSensor(int32_t *data, const uint8_t* packet=0);
         uint8_t dmpGetGyroAndAccelSensor(int16_t *data, const uint8_t* packet=0);
         uint8_t dmpGetGyroAndAccelSensor(VectorInt16 *g, VectorInt16 *a, const uint8_t* packet=0);

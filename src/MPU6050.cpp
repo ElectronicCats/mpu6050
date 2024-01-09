@@ -126,8 +126,6 @@ void MPU6050_Base::initialize(ACCEL_FS accelRange, GYRO_FS gyroRange) {
         gyroscopeResolution = 2000.0 / 16384.0;
     }
 
-    gyroscopeResolution = get_gyro_resolution(gyroRange);
-
     setSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
 }
 

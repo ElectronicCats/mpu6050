@@ -437,11 +437,30 @@ THE SOFTWARE.
 
 #define MPU6050_FIFO_DEFAULT_TIMEOUT 11000
 
+enum class ACCEL_FS {
+    A2G,
+    A4G,
+    A8G,
+    A16G
+};
+
+enum class GYRO_FS {
+    G250DPS,
+    G500DPS,
+    G1000DPS,
+    G2000DPS
+};
+
 class MPU6050_Base {
     public:
         MPU6050_Base(uint8_t address=MPU6050_DEFAULT_ADDRESS, void *wireObj=0);
 
         void initialize();
+        void initialize(ACCEL_FS accelRange, GYRO_FS gyroRange);
+
+        float get_acce_resolution();
+        float get_gyro_resolution();
+
         bool testConnection();
 
         // AUX_VDDIO register
@@ -839,6 +858,9 @@ class MPU6050_Base {
         void *wireObj;
         uint8_t buffer[14];
         uint32_t fifoTimeout = MPU6050_FIFO_DEFAULT_TIMEOUT;
+
+        float accelerationResolution;
+        float gyroscopeResolution;
     
     private:
         int16_t offsets[6];

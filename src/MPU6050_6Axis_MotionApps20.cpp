@@ -514,8 +514,7 @@ uint8_t MPU6050_6Axis_MotionApps20::dmpGetGravity(int16_t *data, const uint8_t* 
     uint8_t status = dmpGetQuaternion(qI, packet);
     data[0] = ((int32_t)qI[1] * qI[3] - (int32_t)qI[0] * qI[2]) / 16384;
     data[1] = ((int32_t)qI[0] * qI[1] + (int32_t)qI[2] * qI[3]) / 16384;
-    data[2] = ((int32_t)qI[0] * qI[0] - (int32_t)qI[1] * qI[1]
-	       - (int32_t)qI[2] * qI[2] + (int32_t)qI[3] * qI[3]) / (int32_t)(2 * 16384L);
+    data[2] = ((int32_t)qI[0] * qI[0] - (int32_t)qI[1] * qI[1] - (int32_t)qI[2] * qI[2] + (int32_t)qI[3] * qI[3]) / (int32_t)(2 * 16384L);
     return status;
 }
 
@@ -524,6 +523,7 @@ uint8_t MPU6050_6Axis_MotionApps20::dmpGetGravity(VectorFloat *v, Quaternion *q)
     v -> y = 2 * (q -> w*q -> x + q -> y*q -> z);
     v -> z = q -> w*q -> w - q -> x*q -> x - q -> y*q -> y + q -> z*q -> z;
     return 0;
+	
 }
 // uint8_t MPU6050_6Axis_MotionApps20::dmpGetUnquantizedAccel(long *data, const uint8_t* packet);
 // uint8_t MPU6050_6Axis_MotionApps20::dmpGetQuantizedAccel(long *data, const uint8_t* packet);

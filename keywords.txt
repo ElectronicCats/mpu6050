@@ -12,9 +12,39 @@ MPU6050	KEYWORD1
 #######################################
 
 initialize  KEYWORD2
+get_acce_resolution KEYWORD2
+get_gyro_resolution	KEYWORD2
 testConnection  KEYWORD2
 
-getMotion6  KEYWORD2
+getAuxVDDIOLevel	KEYWORD2
+setAuxVDDIOLevel	KEYWORD2
+
+getRate KEYWORD2
+setRate KEYWORD2
+
+getExternalFrameSync	KEYWORD2
+setExternalFrameSync	KEYWORD2
+getDLPFMode	KEYWORD2
+
+getFullScaleGyroRange	KEYWORD2
+setFullScaleGyroRange	KEYWORD2
+
+getAccelXSelfTestFactoryTrim	KEYWORD2
+getAccelYSelfTestFactoryTrim	KEYWORD2
+getAccelZSelfTestFactoryTrim	KEYWORD2
+getGyroXSelfTestFactoryTrim	KEYWORD2
+getGyroYSelfTestFactoryTrim	KEYWORD2
+getGyroZSelfTestFactoryTrim	KEYWORD2
+
+getAccelXSelfTest	KEYWORD2
+getAccelYSelfTest	KEYWORD2
+getAccelZSelfTest	KEYWORD2
+getFullScaleAccelRange	KEYWORD2
+setFullScaleAccelRange	KEYWORD2
+getDHPFMode	KEYWORD2
+setDHPFMode	KEYWORD2
+
+getMotion6	KEYWORD2
 getMotion9  KEYWORD2
 getAccelerationX    KEYWORD2
 getAccelerationY    KEYWORD2
@@ -38,6 +68,77 @@ getMotionDetectionThreshold KEYWORD2
 setMotionDetectionThreshold KEYWORD2
 getMotionDetectionDuration  KEYWORD2
 setMotionDetectionDuration  KEYWORD2
+getZeroMotionDetectionThreshold KEYWORD2
+setZeroMotionDetectionThreshold KEYWORD2
+getZeroMotionDetectionDuration  KEYWORD2
+setZeroMotionDetectionDuration  KEYWORD2
+
+getTempFIFOEnabled  KEYWORD2
+setTempFIFOEnabled  KEYWORD2
+getXGyroFIFOEnabled KEYWORD2
+setXGyroFIFOEnabled KEYWORD2
+getYGyroFIFOEnabled KEYWORD2
+setYGyroFIFOEnabled KEYWORD2
+getZGyroFIFOEnabled KEYWORD2
+setZGyroFIFOEnabled	KEYWORD2
+getAccelFIFOEnabled KEYWORD2
+setAccelFIFOEnabled	KEYWORD2
+getSlave2FIFOEnabled	KEYWORD2f
+setSlave2FIFOEnabled	KEYWORD2
+getSlave1FIFOEnabled	KEYWORD2
+setSlave1FIFOEnabled	KEYWORD2
+getSlave0FIFOEnabled	KEYWORD2
+setSlave0FIFOEnabled	KEYWORD2
+
+getMultiMasterEnabled	KEYWORD2
+setMultiMasterEnabled	KEYWORD2
+getWaitForExternalSensorEnabled	KEYWORD2
+setWaitForExternalSensorEnabled	KEYWORD2
+getSlave3FIFOEnabled	KEYWORD2
+setSlave3FIFOEnabled	KEYWORD2
+getSlaveReadWriteTransitionEnabled	KEYWORD2
+setSlaveReadWriteTransitionEnabled	KEYWORD2
+getMasterClockSpeed	KEYWORD2
+setMasterClockSpeed	KEYWORD2
+
+getSlaveAddress	KEYWORD2
+setSlaveAddress	KEYWORD2
+getSlaveRegister	KEYWORD2
+setSlaveRegister	KEYWORD2
+getSlaveEnabled	KEYWORD2
+setSlaveEnabled	KEYWORD2
+getSlaveWordByteSwap	KEYWORD2
+setSlaveWordByteSwap	KEYWORD2
+getSlaveWriteMode	KEYWORD2
+setSlaveWriteMode	KEYWORD2
+getSlaveWordGroupOffset	KEYWORD2
+setSlaveWordGroupOffset	KEYWORD2
+getSlaveDataLength	KEYWORD2
+setSlaveDataLength	KEYWORD2
+
+getSlave4Address	KEYWORD2
+setSlave4Address	KEYWORD2
+getSlave4Register	KEYWORD2
+setSlave4Register	KEYWORD2
+setSlave4OutputByte	KEYWORD2
+getSlave4Enabled	KEYWORD2
+setSlave4Enabled	KEYWORD2
+getSlave4InterruptEnabled	KEYWORD2
+setSlave4InterruptEnabled	KEYWORD2
+getSlave4WriteMode	KEYWORD2
+setSlave4WriteMode	KEYWORD2
+getSlave4MasterDelay	KEYWORD2
+setSlave4MasterDelay	KEYWORD2
+getSlate4InputByte	KEYWORD2
+
+getPassthroughStatus	KEYWORD2
+getSlave4IsDone	KEYWORD2
+getLostArbitration	KEYWORD2
+getSlave4Nack	KEYWORD2
+getSlave3Nack	KEYWORD2
+getSlave2Nack	KEYWORD2
+getSlave1Nack	KEYWORD2
+getSlave0Nack	KEYWORD2
 
 CalibrateGyro   KEYWORD2
 CalibrateAccel  KEYWORD2

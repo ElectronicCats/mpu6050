@@ -3392,10 +3392,11 @@ void MPU6050_Base::PID(uint8_t ReadAddress, float kP,float kI, uint8_t Loops){
 	uint8_t SaveAddress = (ReadAddress == 0x3B)?((getDeviceID() < 0x38 )? 0x06:0x77):0x13;
 
 	int16_t  Data;
-	float Reading;
+	float Reading[3];
 	int16_t BitZero[3];
 	uint8_t shift =(SaveAddress == 0x77)?3:2;
-	float Error, PTerm, ITerm[3];
+	float Error, PTerm, ITerm[3], rawG[3];
+	VectorFloat v_rawG, v_normG;
 	int16_t eSample;
 	uint32_t eSum;
 	uint16_t gravity = 8192; // prevent uninitialized compiler warning
@@ -3403,12 +3404,12 @@ void MPU6050_Base::PID(uint8_t ReadAddress, float kP,float kI, uint8_t Loops){
 	Serial.write('>');
 	for (int i = 0; i < 3; i++) {
 		I2Cdev::readWords(devAddr, SaveAddress + (i * shift), 1, (uint16_t *)&Data, I2Cdev::readTimeout, wireObj); // reads 1 or more 16 bit integers (Word)
-		Reading = Data;
+		Reading[i] = Data;
 		if(SaveAddress != 0x13){
 			BitZero[i] = Data & 1;										 // Capture Bit Zero to properly handle Accelerometer calibration
-			ITerm[i] = ((float)Reading) * 8;
+			ITerm[i] = ((float)Reading[i]) * 8;
 			} else {
-			ITerm[i] = Reading * 4;
+			ITerm[i] = Reading[i] * 4;
 		}
 	}
 	for (int L = 0; L < Loops; L++) {
@@ -3417,10 +3418,21 @@ void MPU6050_Base::PID(uint8_t ReadAddress, float kP,float kI, uint8_t Loops){
 			eSum = 0;
 			for (int i = 0; i < 3; i++) {
 				I2Cdev::readWords(devAddr, ReadAddress + (i * 2), 1, (uint16_t *)&Data, I2Cdev::readTimeout, wireObj); // reads 1 or more 16 bit integers (Word)
-				Reading = Data;
-				if ((ReadAddress == 0x3B)&&(i == 2)) Reading -= gravity;	//remove Gravity
-				Error = -Reading;
-				eSum += abs(Reading);
+				Reading[i] = Data;
+				rawG[i] = Data;
+				if ((ReadAddress == 0x3B)&&(i == 2)) {
+					v_rawG.x = rawG[0];
+					v_rawG.y = rawG[1];
+					v_rawG.z = rawG[2];
+					v_normG = v_rawG.getNormalized();
+					Reading[0] -= gravity * v_normG.x;	//remove Gravity
+					Reading[1] -= gravity * v_normG.y;
+					Reading[2] -= gravity * v_normG.z;
+				}
+			}
+			for (int i = 0; i < 3; i++) {
+				Error = -Reading[i];
+				eSum += abs(Reading[i]);
 				PTerm = kP * Error;
 				ITerm[i] += (Error * 0.001) * kI;				// Integral term 1000 Calculations a second = 0.001
 				if(SaveAddress != 0x13){

@@ -3401,6 +3401,7 @@ void MPU6050_Base::PID(uint8_t ReadAddress, float kP,float kI, uint8_t Loops){
 	uint32_t eSum;
 	uint16_t gravity = 8192; // prevent uninitialized compiler warning
 	if (ReadAddress == 0x3B) gravity = 16384 >> getFullScaleAccelRange();
+	uint16_t epsilon = gravity * 0.001;
 	Serial.write('>');
 	for (int i = 0; i < 3; i++) {
 		I2Cdev::readWords(devAddr, SaveAddress + (i * shift), 1, (uint16_t *)&Data, I2Cdev::readTimeout, wireObj); // reads 1 or more 16 bit integers (Word)
@@ -3424,7 +3425,7 @@ void MPU6050_Base::PID(uint8_t ReadAddress, float kP,float kI, uint8_t Loops){
 					v_rawG.x = rawG[0];
 					v_rawG.y = rawG[1];
 					v_rawG.z = rawG[2];
-					if (v_rawG.getMagnitude() < gravity) {
+					if (v_rawG.getMagnitude() < gravity + epsilon && v_rawG.getMagnitude() > gravity - epsilon) {
 						// do nothing
 					}else {
 						v_normG = v_rawG.getNormalized();

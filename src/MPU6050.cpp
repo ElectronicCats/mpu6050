@@ -3424,7 +3424,11 @@ void MPU6050_Base::PID(uint8_t ReadAddress, float kP,float kI, uint8_t Loops){
 					v_rawG.x = rawG[0];
 					v_rawG.y = rawG[1];
 					v_rawG.z = rawG[2];
-					v_normG = v_rawG.getNormalized();
+					if (v_rawG.getMagnitude() < gravity) {
+						// do nothing
+					}else {
+						v_normG = v_rawG.getNormalized();
+					}
 					Reading[0] -= gravity * v_normG.x;	//remove Gravity
 					Reading[1] -= gravity * v_normG.y;
 					Reading[2] -= gravity * v_normG.z;

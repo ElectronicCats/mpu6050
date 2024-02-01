@@ -3436,6 +3436,7 @@ void MPU6050_Base::PID(uint8_t ReadAddress, float kP,float kI, uint8_t Loops){
 				}
 			}
 			for (int i = 0; i < 3; i++) {
+				if (isnan(Reading[i])) {Reading[i] = 0;}
 				Error = -Reading[i];
 				eSum += abs(Reading[i]);
 				PTerm = kP * Error;

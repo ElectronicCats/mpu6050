@@ -99,17 +99,32 @@ THE SOFTWARE.
 // compiler macro (Arduino IDE 1.0+ required).
 
 //#define DEBUG
+/* Control whether debugging macros are active at compile time */
+#undef DB_ACTIVE
 #ifdef DEBUG
-    #define DEBUG_PRINT(x) Serial.print(x)
-    #define DEBUG_PRINTF(x, y) Serial.print(x, y)
-    #define DEBUG_PRINTLN(x) Serial.println(x)
-    #define DEBUG_PRINTLNF(x, y) Serial.println(x, y)
+#define DB_ACTIVE 1
 #else
-    #define DEBUG_PRINT(x)
-    #define DEBUG_PRINTF(x, y)
-    #define DEBUG_PRINTLN(x)
-    #define DEBUG_PRINTLNF(x, y)
-#endif
+#define DB_ACTIVE 0
+#endif /* DEBUG */
+
+/*
+** Usage:  DB_PRINT((...));
+** Usage:  DB_PRINTLN((...));
+**
+** "..." is whatever extra arguments fmt requires (possibly nothing).
+**
+** The structure of the macros means that the code is always validated
+** but is not called when DEBUG is undefined.
+** -- See chapter 8 of 'The Practice of Programming', by Kernighan and Pike.
+*/
+#define DEBUG_PRINT(...)\
+            do { if (DB_ACTIVE) Serial.print(__VA_ARGS__); } while (0)
+#define DEBUG_PRINTF(...)\
+            do { if (DB_ACTIVE) Serial.printf(__VA_ARGS__); } while (0)
+#define DEBUG_PRINTLN(...)\
+            do { if (DB_ACTIVE) Serial.println(__VA_ARGS__); } while (0)
+#define DEBUG_PRINTLNF(x, y)\
+            do { if (DB_ACTIVE) Serial.println(x, y); } while (0)
 
 #define MPU6050_DMP_CODE_SIZE       1929    // dmpMemory[]
 #define MPU6050_DMP_CONFIG_SIZE     192     // dmpConfig[]

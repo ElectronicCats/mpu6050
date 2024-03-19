@@ -87,7 +87,7 @@ THE SOFTWARE.
 // after moving string constants to flash memory storage using the F()
 // compiler macro (Arduino IDE 1.0+ required).
 
-//#define DEBUG
+// #define DEBUG
 /* Control whether debugging macros are active at compile time */
 #undef DB_ACTIVE
 #ifdef DEBUG
@@ -597,7 +597,7 @@ uint8_t MPU6050_9Axis_MotionApps41::dmpInitialize() {
             #ifdef DEBUG
                 DEBUG_PRINT(F("Read bytes: "));
                 for (j = 0; j < 4; j++) {
-                    DEBUG_PRINTF(dmpUpdate[3 + j], HEX);
+                    DEBUG_PRINT(dmpUpdate[3 + j], HEX);
                     DEBUG_PRINT(" ");
                 }
                 DEBUG_PRINTLN("");

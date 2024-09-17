@@ -1,30 +1,34 @@
 /*
-    MPU6050 DMP6
+  MPU6050 DMP6
 
-    Digital Motion Processor or DMP performs complex motion processing tasks.
-    - Fuses the data from the accel, gyro and extarnal magnetometer if applies, 
-    compesating individual sensor noise and errors.
-    - Detect specific types of motion without the need to continuosly monitor 
-    raw sensor data with a microcontroller.
-    - Reduce workload on the microprocessor.
-    - Output processed data such as quaternions, Euler angles, and gravity vectors.
+  Digital Motion Processor or DMP performs complex motion processing tasks.
+  - Fuses the data from the accel, gyro and extarnal magnetometer if applies, 
+  compesating individual sensor noise and errors.
+  - Detect specific types of motion without the need to continuosly monitor 
+  raw sensor data with a microcontroller.
+  - Reduce workload on the microprocessor.
+  - Output processed data such as quaternions, Euler angles, and gravity vectors.
 
-    The code incluces an auto calibration and offset generator tasks. Different 
-    output formats available.
+  The code incluces an auto calibration and offset generator tasks. Different 
+  output formats available.
 
-    This code is compatible with teapot propject by using the teapot output format.
+  This code is compatible with teapot propject by using the teapot output format.
 
-    Circuit: In addition to connection 3.3v, GND, SDA, and SCL, this sketch
-    depends on the MPU6050's INT pin being connected to the Arduino's
-    external interrupt #0 pin.
+  Circuit: In addition to connection 3.3v, GND, SDA, and SCL, this sketch
+  depends on the MPU6050's INT pin being connected to the Arduino's
+  external interrupt #0 pin.
+
+  Teapot processing example may be broken due FIFO structure change. if using DMP
+  6.12 firmware version. 
     
-    Find the full MPU6050 library docummentation here:
-    https://github.com/ElectronicCats/mpu6050/wiki
+  Find the full MPU6050 library docummentation here:
+  https://github.com/ElectronicCats/mpu6050/wiki
 
 */
 
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
+//#include "MPU6050_6Axis_MotionApps612.h" // Uncomment this library to work with DMP 6.12 and comment the above library.
 
 /* MPU6050 default I2C address is 0x68*/
 MPU6050 mpu;
@@ -51,12 +55,12 @@ refernce frame. Yaw is relative if there is no magnetometer present.
 
 -  Use "OUTPUT_TEAPOT" for output that matches the InvenSense teapot demo. 
 -------------------------------------------------------------------------------------------------------------------------------*/ 
-//#define OUTPUT_READABLE_YAWPITCHROLL
+#define OUTPUT_READABLE_YAWPITCHROLL
 //#define OUTPUT_READABLE_QUATERNION
 //#define OUTPUT_READABLE_EULER
 //#define OUTPUT_READABLE_REALACCEL
 //#define OUTPUT_READABLE_WORLDACCEL
-#define OUTPUT_TEAPOT
+//#define OUTPUT_TEAPOT
 
 int const INTERRUPT_PIN = 2;  // Define the interruption #0 pin
 bool blinkState;
@@ -66,12 +70,12 @@ bool DMPReady = false;  // Set true if DMP init was successful
 uint8_t MPUIntStatus;   // Holds actual interrupt status byte from MPU
 uint8_t devStatus;      // Return status after each device operation (0 = success, !0 = error)
 uint16_t packetSize;    // Expected DMP packet size (default is 42 bytes)
-uint16_t FIFOCount;     // Count of all bytes currently in FIFO
 uint8_t FIFOBuffer[64]; // FIFO storage buffer
 
 /*---Orientation/Motion Variables---*/ 
 Quaternion q;           // [w, x, y, z]         Quaternion container
 VectorInt16 aa;         // [x, y, z]            Accel sensor measurements
+VectorInt16 gy;         // [x, y, z]            Gyro sensor measurements
 VectorInt16 aaReal;     // [x, y, z]            Gravity-free accel sensor measurements
 VectorInt16 aaWorld;    // [x, y, z]            World-frame accel sensor measurements
 VectorFloat gravity;    // [x, y, z]            Gravity vector
@@ -79,12 +83,12 @@ float euler[3];         // [psi, theta, phi]    Euler angle container
 float ypr[3];           // [yaw, pitch, roll]   Yaw/Pitch/Roll container and gravity vector
 
 /*-Packet structure for InvenSense teapot demo-*/ 
-uint8_t teapotPacket[14] = { '$', 0x02, 0,0, 0,0, 0,0, 0,0, 0x00, 0x00, '\r', '\n' };
+uint8_t teapotPacket[14] = { '$', 0x02, 0, 0, 0, 0, 0, 0, 0, 0, 0x00, 0x00, '\r', '\n' };
 
 /*------Interrupt detection routine------*/
 volatile bool MPUInterrupt = false;     // Indicates whether MPU6050 interrupt pin has gone high
 void DMPDataReady() {
-    MPUInterrupt = true;
+  MPUInterrupt = true;
 }
 
 void setup() {
@@ -109,7 +113,7 @@ void setup() {
     Serial.println("MPU6050 connection failed");
     while(true);
   }
-    else {
+  else {
     Serial.println("MPU6050 connection successful");
   }
 
@@ -127,6 +131,8 @@ void setup() {
   mpu.setXGyroOffset(0);
   mpu.setYGyroOffset(0);
   mpu.setZGyroOffset(0);
+  mpu.setXAccelOffset(0);
+  mpu.setYAccelOffset(0);
   mpu.setZAccelOffset(0);
 
   /* Making sure it worked (returns 0 if so) */ 

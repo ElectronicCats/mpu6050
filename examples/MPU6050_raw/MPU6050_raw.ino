@@ -1,12 +1,12 @@
 /*
-    MPU6050 Raw
+  MPU6050 Raw
 
-    A code for obtaining raw data from the MPU6050 module with option to
-    modify the data output format.
+  A code for obtaining raw data from the MPU6050 module with option to
+  modify the data output format.
 
-    Find the full MPU6050 library docummentation here:
-    https://github.com/ElectronicCats/mpu6050/wiki
- */
+  Find the full MPU6050 library docummentation here:
+  https://github.com/ElectronicCats/mpu6050/wiki
+*/
 #include "I2Cdev.h"
 #include "MPU6050.h"
 

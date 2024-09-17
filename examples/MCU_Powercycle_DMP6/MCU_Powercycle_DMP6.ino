@@ -5,7 +5,7 @@
   when the MCU gas been reset or powercycled but MPU6050 has not.
 
   This example is designed for the LGT8F328. The MCU will enter deep sleep for 1 second, erasing
-  the RAM, causing the MCU to restart on wakeup.
+  the RAM, causing the MCU to restart on wakeup. 
 
   Find the full MPU6050 library docummentation here:
   https://github.com/ElectronicCats/mpu6050/wiki
@@ -100,7 +100,6 @@ void setup() {
   on the MPU6050.
   */
   mpu.setMotionDetectionDuration(1);
-
   startTime = millis();
 }
 

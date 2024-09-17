@@ -71,6 +71,7 @@ void setup() {
 }
 
 void loop() {
+  //Write your code here
 } 
 
 /*Initializate function*/
@@ -156,7 +157,8 @@ void PullBracketsOut() {
       if (LowValue[i] >= Target[i]) {
         Done = false;
         NextLowOffset[i] = LowOffset[i] - 1000;
-      } else {
+      } 
+      else {
         NextLowOffset[i] = LowOffset[i];
       }
     }
@@ -167,7 +169,8 @@ void PullBracketsOut() {
       if (HighValue[i] <= Target[i]) {
         Done = false;
         NextHighOffset[i] = HighOffset[i] + 1000;
-      } else {
+      } 
+      else {
         NextHighOffset[i] = HighOffset[i];
       }
     } 
@@ -192,7 +195,8 @@ void PullBracketsIn() {
     StillWorking = false;
     if (AllBracketsNarrow && (N == NFast)) {
       SetAveraging(NSlow);
-    } else {
+    } 
+    else {
       AllBracketsNarrow = true;
     }
     for (int i = 0; i <= 5; i++) {
@@ -239,8 +243,9 @@ void GetSmoothed() {
   for (i = 1; i <= N; i++) { 
     mpu.getMotion6( & RawValue[iAx], & RawValue[iAy], & RawValue[iAz], & RawValue[iGx], & RawValue[iGy], & RawValue[iGz]);
     delayMicroseconds(usDelay);
-    for (int j = 0; j <= 5; j++)
+    for (int j = 0; j <= 5; j++){
       Sums[j] = Sums[j] + RawValue[j];
+    }
   } 
   for (i = 0; i <= 5; i++) {
     Smoothed[i] = (Sums[i] + N / 2) / N;

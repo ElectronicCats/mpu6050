@@ -1,8 +1,16 @@
 /*
- NOTE:  ToxicLibs library is required.
-1. Download from https://github.com/postspectacular/toxiclibs/releases
-2. Extract into [userdir]/Documents/Processing/libraries (location may be different on Mac/Linux)
-3. Restart Processing if needed 
+    MPU Teapot example
+    
+    This code will display a airplane graphhics which will follow the MPU6050 movements.
+
+    Use #define OUTPUT_TEAPOT output definition to make this code work.
+
+    Define the serial port in the code below (line 45). Note: Close any other serial instance using the port.
+
+    NOTE:  ToxicLibs library is required.
+    1. Download from https://github.com/postspectacular/toxiclibs/releases
+    2. Extract into [userdir]/Documents/Processing/libraries (location may be different on Mac/Linux)
+    3. Restart Processing if needed 
 */
 
 import processing.serial.*;

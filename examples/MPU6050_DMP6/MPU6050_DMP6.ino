@@ -2,33 +2,33 @@
   MPU6050 DMP6
 
   Digital Motion Processor or DMP performs complex motion processing tasks.
-  - Fuses the data from the accel, gyro and extarnal magnetometer if applies, 
-  compesating individual sensor noise and errors.
-  - Detect specific types of motion without the need to continuosly monitor 
+  - Fuses the data from the accel, gyro, and external magnetometer if applied, 
+  compensating individual sensor noise and errors.
+  - Detect specific types of motion without the need to continuously monitor 
   raw sensor data with a microcontroller.
   - Reduce workload on the microprocessor.
   - Output processed data such as quaternions, Euler angles, and gravity vectors.
 
-  The code incluces an auto calibration and offset generator tasks. Different 
+  The code includes an auto-calibration and offsets generator tasks. Different 
   output formats available.
 
-  This code is compatible with teapot propject by using the teapot output format.
+  This code is compatible with the teapot project by using the teapot output format.
 
   Circuit: In addition to connection 3.3v, GND, SDA, and SCL, this sketch
   depends on the MPU6050's INT pin being connected to the Arduino's
   external interrupt #0 pin.
 
-  Teapot processing example may be broken due FIFO structure change. if using DMP
+  The teapot processing example may be broken due FIFO structure change if using DMP
   6.12 firmware version. 
     
-  Find the full MPU6050 library docummentation here:
+  Find the full MPU6050 library documentation here:
   https://github.com/ElectronicCats/mpu6050/wiki
 
 */
 
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
-//#include "MPU6050_6Axis_MotionApps612.h" // Uncomment this library to work with DMP 6.12 and comment the above library.
+//#include "MPU6050_6Axis_MotionApps612.h" // Uncomment this library to work with DMP 6.12 and comment on the above library.
 
 /* MPU6050 default I2C address is 0x68*/
 MPU6050 mpu;
@@ -36,9 +36,9 @@ MPU6050 mpu;
 //MPU6050 mpu(0x68, &Wire1); //Use for AD0 low, but 2nd Wire (TWI/I2C) object.
 
 /* OUTPUT FORMAT DEFINITION-------------------------------------------------------------------------------------------
-- Use "OUTPUT_READABLE_QUATERNION" for quaternion commponents in [w, x, y, z] format. Quaternion do not 
-suffer from gimbal lock problem but is harder to parse or process efficiently on a remotehost or software 
-enviroments like Porcessing.
+- Use "OUTPUT_READABLE_QUATERNION" for quaternion commponents in [w, x, y, z] format. Quaternion does not 
+suffer from gimbal lock problems but is harder to parse or process efficiently on a remote host or software 
+environment like Processing.
 
 - Use "OUTPUT_READABLE_EULER" for Euler angles (in degrees) output, calculated from the quaternions coming 
 from the FIFO. EULER ANGLES SUFFER FROM GIMBAL LOCK PROBLEM.
@@ -48,10 +48,10 @@ coming from the FIFO. THIS REQUIRES GRAVITY VECTOR CALCULATION.
 YAW/PITCH/ROLL ANGLES SUFFER FROM GIMBAL LOCK PROBLEM.
 
 - Use "OUTPUT_READABLE_REALACCEL" for acceleration components with gravity removed. The accel reference frame
-is not compesated for orientation. +X will always be +X according to the sensor.
+is not compensated for orientation. +X will always be +X according to the sensor.
 
 - Use "OUTPUT_READABLE_WORLDACCEL" for acceleration components with gravity removed and adjusted for the world
-refernce frame. Yaw is relative if there is no magnetometer present.
+reference frame. Yaw is relative if there is no magnetometer present.
 
 -  Use "OUTPUT_TEAPOT" for output that matches the InvenSense teapot demo. 
 -------------------------------------------------------------------------------------------------------------------------------*/ 
@@ -94,7 +94,7 @@ void DMPDataReady() {
 void setup() {
   #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
     Wire.begin();
-    Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
+    Wire.setClock(400000); // 400kHz I2C clock. Comment on this line if having compilation difficulties
   #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
     Fastwire::setup(400, true);
   #endif

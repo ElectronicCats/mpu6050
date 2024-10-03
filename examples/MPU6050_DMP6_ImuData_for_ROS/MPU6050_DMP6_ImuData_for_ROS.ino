@@ -2,17 +2,17 @@
   MPU6050 DMP6 for ROS
 
   Digital Motion Processor or DMP performs complex motion processing tasks.
-  - Fuses the data from the accel, gyro and extarnal magnetometer if applies, 
-  compesating individual sensor noise and errors.
-  - Detect specific types of motion without the need to continuosly monitor 
+  - Fuses the data from the accel, gyro, and external magnetometer if applied, 
+  compensating individual sensor noise and errors.
+  - Detect specific types of motion without the need to continuously monitor 
   raw sensor data with a microcontroller.
   - Reduce workload on the microprocessor.
   - Output processed data such as quaternions, Euler angles, and gravity vectors.
 
-  The code incluces an auto calibration and offset generator tasks. Different 
+  The code includes auto-calibration and offsets generator tasks. Different 
   output formats available.
 
-  Find the full MPU6050 library docummentation here:
+  Find the full MPU6050 library documentation here:
   https://github.com/ElectronicCats/mpu6050/wiki
 */
 
@@ -49,7 +49,7 @@ float ypr[3];           // [yaw, pitch, roll]   Yaw/Pitch/Roll container and gra
 void setup() {
   #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
     Wire.begin();
-    Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
+    Wire.setClock(400000); // 400kHz I2C clock. Comment on this line if having compilation difficulties
   #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
     Fastwire::setup(400, true);
   #endif

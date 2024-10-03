@@ -1,7 +1,7 @@
 /*
     MPU Teapot example
     
-    This code will display a airplane graphhics which will follow the MPU6050 movements.
+    This code will display airplane graphs that will follow the MPU6050 movements.
 
     Use #define OUTPUT_TEAPOT output definition to make this code work.
 
@@ -44,13 +44,13 @@ void setup() {
     println(Serial.list()); //Display serial port list for debugging/clarity
     tring portName = "COMXX"; //Define the port, port format may be different on Linux/Mac
     port = new Serial(this, portName, 115200); // Open the serial port
-    port.write('r'); // Send single character to trigger DMP init/start
+    port.write('r'); // Send a single character to trigger DMP init/start
 }
 
 void draw() {
     if (millis() - interval > 1000) {
-        /*Resend single character to trigger DMP init/start
-        in case the MPU is halted/reset while applet is running*/
+        /*Resend a single character to trigger DMP init/start
+        in case the MPU is halted/reset while the applet is running*/
         port.write('r');
         interval = millis();
     }
@@ -123,7 +123,7 @@ void serialEvent(Serial port) {
                 q[3] = ((teapotPacket[8] << 8) | teapotPacket[9]) / 16384.0f;
                 for (int i = 0; i < 4; i++) if (q[i] >= 2) q[i] = -4 + q[i];
                 
-                quat.set(q[0], q[1], q[2], q[3]);   //Set our toxilibs quaternion to new data
+                quat.set(q[0], q[1], q[2], q[3]);   //Set our ToxicLibs quaternion to new data
             }
         }
     }

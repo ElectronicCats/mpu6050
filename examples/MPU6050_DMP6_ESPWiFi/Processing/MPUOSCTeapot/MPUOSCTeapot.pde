@@ -1,61 +1,26 @@
-// I2C device class (I2Cdev) demonstration Processing sketch for MPU6050 DMP output
-// 6/20/2012 by Jeff Rowberg <jeff@rowberg.net>
-// Updates should (hopefully) always be available at https://github.com/jrowberg/i2cdevlib
-//
-// Changelog:
-//     2012-06-20 - initial release
+/*
+    MPU OSC Teapot Processing demo for MPU6050 DMP modified for OSC
+    
+    The original demo uses serial port I/O which has been replaced with
+    OSC UDP messages in this sketch.
+    
+    The MPU6050 is connected to an ESP8266 with a battery so it is completely
+    wire-free.
 
-/* ============================================
-I2Cdev device library code is placed under the MIT license
-Copyright (c) 2012 Jeff Rowberg
+    Tested on Processing 3.3.5 running on Ubuntu Linux 14.04
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+    Dependencies installed using Library Manager
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-===============================================
-*/
-
-/**
- * MPUOSCTeapot Processing demo for MPU6050 DMP modified for OSC
- *   https://gitub.com/jrowberg/i2cdevlib
- *   The original demo uses serial port I/O which has been replaced with
- *   OSC UDP messages in this sketch.
- *
- *   The MPU6050 is connected to an ESP8266 with battery so it is completely
- *   wire free.
- *
- *   Tested on Processing 3.3.5 running on Ubuntu Linux 14.04
- *
- * Dependencies installed using Library Manager
- *
- * Open Sound Control library
- *   oscP5 website at http://www.sojamo.de/oscP5
- * ToxicLibs
- *   quaternion functions https://github.com/postspectacular/toxiclibs/
+    Note: oscP5 and ToxicLibs libraries are required:
+    1. Download both libraries from the corresponding links:
+        * Open Sound Control library: https://sojamo.de/libraries/oscP5/
+        * Download from https://github.com/postspectacular/toxiclibs/releases
+    2. Extract into [userdir]/Documents/Processing/libraries (location may be different on Mac/Linux)
+    3. Restart Processing if needed 
  */
 
-// Install oscP5 using the IDE library manager.
-// From the IDE menu bar, Sketch | Import Library | Add library.
-// In the search box type "osc".
 import oscP5.*;
 import netP5.*;
-// 1. Download from https://github.com/postspectacular/toxiclibs/releases
-// 2. Extract into [userdir]/Processing/libraries
-//    (location may be different on Mac/Linux)
 import toxi.geom.*;
 import toxi.processing.*;
 
@@ -66,26 +31,29 @@ Quaternion quat = new Quaternion(1, 0, 0, 0);
 OscP5 oscP5;
 
 void setup() {
-    // 300px square viewport using OpenGL rendering
+    /* 300px square viewport using OpenGL rendering*/
     size(300, 300, P3D);
     gfx = new ToxiclibsSupport(this);
 
-    // setup lights and antialiasing
+    /*Setup lights and antialiasing*/
     lights();
     smooth();
 
-    /* start oscP5, listening for incoming messages at port 9999 */
+    /* Start oscP5, listening for incoming messages at port 9999 */
     oscP5 = new OscP5(this, 9999);
 
     oscP5.plug(this, "imu", "/imuquat");
 }
 
-/* incoming osc message are forwarded to the oscEvent method. */
+/* Incoming OSC messages are forwarded to the oscEvent method. */
 void oscEvent(OscMessage theOscMessage) {
-  /* print the address pattern and the typetag of the received OscMessage */
-  //print("### received an osc message.");
-  //print(" addrpattern: "+theOscMessage.addrPattern());
-  //println(" typetag: "+theOscMessage.typetag());
+  /* Print the address pattern and the type tag of the received OscMessage */
+  
+  /*
+  print("### received an osc message.");
+  print(" addrpattern: "+theOscMessage.addrPattern());
+  println(" typetag: "+theOscMessage.typetag());
+  */
 }
 
 public void imu(float quant_w, float quant_x, float quant_y, float quant_z) {
@@ -94,45 +62,43 @@ public void imu(float quant_w, float quant_x, float quant_y, float quant_z) {
 }
 
 void draw() {
-    // black background
-    background(0);
+    background(0);  //Black background
 
-    // translate everything to the middle of the viewport
     pushMatrix();
-    translate(width / 2, height / 2);
+    translate(width / 2, height / 2);   //Translate everything to the middle of the viewport
 
-    // 3-step rotation from yaw/pitch/roll angles (gimbal lock!)
-    // ...and other weirdness I haven't figured out yet
+    /* 3-step rotation from yaw/pitch/roll angles (gimbal lock!)*/
     //rotateY(-ypr[0]);
     //rotateZ(-ypr[1]);
     //rotateX(-ypr[2]);
 
-    // toxiclibs direct angle/axis rotation from quaternion (NO gimbal lock!)
-    // (axis order [1, 3, 2] and inversion [-1, +1, +1] is a consequence of
-    // different coordinate system orientation assumptions between Processing
-    // and InvenSense DMP)
+    /*  ToxicLibs direct angle/axis rotation from quaternion (NO gimbal lock!)
+        (axis order [1, 3, 2] and inversion [-1, +1, +1] is a consequence of
+        different coordinate system orientation assumptions between Processing
+        and InvenSense DMP)
+    */
     float[] axis = quat.toAxisAngle();
     rotate(axis[0], -axis[1], axis[3], axis[2]);
-
-    // draw main body in red
-    fill(255, 0, 0, 200);
+    
+    /*Draw main body in red*/
+    fill(255, 0, 0, 200);   
     box(10, 10, 200);
 
-    // draw front-facing tip in blue
-    fill(0, 0, 255, 200);
+    /*Draw front-facing tip in blue*/
+    fill(0, 0, 255, 200);   
     pushMatrix();
     translate(0, 0, -120);
     rotateX(PI/2);
     drawCylinder(0, 20, 20, 8);
     popMatrix();
 
-    // draw wings and tail fin in green
-    fill(0, 255, 0, 200);
+    /*Draw wings and tail fin in green*/
+    fill(0, 255, 0, 200);       
     beginShape(TRIANGLES);
-    vertex(-100,  2, 30); vertex(0,  2, -80); vertex(100,  2, 30);  // wing top layer
-    vertex(-100, -2, 30); vertex(0, -2, -80); vertex(100, -2, 30);  // wing bottom layer
-    vertex(-2, 0, 98); vertex(-2, -30, 98); vertex(-2, 0, 70);  // tail left layer
-    vertex( 2, 0, 98); vertex( 2, -30, 98); vertex( 2, 0, 70);  // tail right layer
+    vertex(-100,  2, 30); vertex(0,  2, -80); vertex(100,  2, 30);  //Wing top layer
+    vertex(-100, -2, 30); vertex(0, -2, -80); vertex(100, -2, 30);  //Wing bottom layer
+    vertex(-2, 0, 98); vertex(-2, -30, 98); vertex(-2, 0, 70);  //Tail left layer
+    vertex( 2, 0, 98); vertex( 2, -30, 98); vertex( 2, 0, 70);  //Tail right layer
     endShape();
     beginShape(QUADS);
     vertex(-100, 2, 30); vertex(-100, -2, 30); vertex(  0, -2, -80); vertex(  0, 2, -80);
@@ -157,12 +123,12 @@ void drawCylinder(float topRadius, float bottomRadius, float tall, int sides) {
     }
     endShape();
 
-    // If it is not a cone, draw the circular top cap
+    /*If it is not a cone, draw the circular top cap*/
     if (topRadius != 0) {
         angle = 0;
         beginShape(TRIANGLE_FAN);
 
-        // Center point
+        /*Center point*/
         vertex(0, 0, 0);
         for (int i = 0; i < sides + 1; i++) {
             vertex(topRadius * cos(angle), 0, topRadius * sin(angle));
@@ -171,7 +137,7 @@ void drawCylinder(float topRadius, float bottomRadius, float tall, int sides) {
         endShape();
     }
 
-    // If it is not a cone, draw the circular bottom cap
+    /*If it is not a cone, draw the circular bottom cap*/
     if (bottomRadius != 0) {
         angle = 0;
         beginShape(TRIANGLE_FAN);

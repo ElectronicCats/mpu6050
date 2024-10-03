@@ -1,161 +1,119 @@
-/* ============================================
-I2Cdev device library code is placed under the MIT license
-Copyright (c) 2012 Jeff Rowberg
+/* 
+  MPU6050 DMP6 ESPWiFi
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+  The board reads quaternion data from the MPU6050 and sends Open Sound
+  Control messages.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+  This example requires the WiFiManager and OSCMEssage libraries available here:
+  - https://github.com/tzapu/WiFiManager
+  - https://github.com/CNMAT/OSC 
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-===============================================
-*/
+  Digital Motion Processor or DMP performs complex motion processing tasks.
+  - Fuses the data from the accel, gyro, and external magnetometer if applied, 
+  compensating individual sensor noise and errors.
+  - Detect specific types of motion without the need to continuously monitor 
+  raw sensor data with a microcontroller.
+  - Reduce workload on the microprocessor.
+  - Output processed data such as quaternions, Euler angles, and gravity vectors.
 
-/* This driver reads quaternion data from the MPU6060 and sends
-   Open Sound Control messages.
+  The code includes auto-calibration and offsets generator tasks. Different 
+  output formats available.
 
-  GY-521  NodeMCU
-  MPU6050 devkit 1.0
-  board   Lolin         Description
-  ======= ==========    ====================================================
-  VCC     VU (5V USB)   Not available on all boards so use 3.3V if needed.
-  GND     G             Ground
-  SCL     D1 (GPIO05)   I2C clock
-  SDA     D2 (GPIO04)   I2C data
-  XDA     not connected
-  XCL     not connected
-  AD0     not connected
-  INT     D8 (GPIO15)   Interrupt pin
+  This code is compatible with the teapot project by using the teapot output format.
+
+  Circuit: In addition to connection 3.3v, GND, SDA, and SCL, this sketch
+  depends on the MPU6050's INT pin being connected to the board's
+  external interrupt #0 pin.
+    
+  Find the full MPU6050 library documentation here:
+  https://github.com/ElectronicCats/mpu6050/wiki
 
 */
 
-#if defined(ESP8266)
-#include <ESP8266WiFi.h>
+#if defined(ESP8266) 
+#include <ESP8266WiFi.h> // Include this library if using an ESP8266 based board
 #else
-#include <WiFi.h>
+#include <WiFi.h> //Otherwise use the included WiFi library
 #endif
+
 #include <DNSServer.h>
 #include <WiFiClient.h>
 #include <WiFiUdp.h>
 #include <OSCMessage.h>
-#include <WiFiManager.h>         //https://github.com/tzapu/WiFiManager
+#include <WiFiManager.h>
 
-// I2Cdev and MPU6050 must be installed as libraries, or else the .cpp/.h files
-// for both classes must be in the include path of your project
 #include "I2Cdev.h"
-
 #include "MPU6050_6Axis_MotionApps20.h"
-//#include "MPU6050.h" // not necessary if using MotionApps include file
 
-// Arduino Wire library is required if I2Cdev I2CDEV_ARDUINO_WIRE implementation
-// is used in I2Cdev.h
-#if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
-    #include "Wire.h"
-#endif
-
-// class default I2C address is 0x68
-// specific I2C addresses may be passed as a parameter here
-// AD0 low = 0x68 (default for SparkFun breakout and InvenSense evaluation board)
-// AD0 high = 0x69
+/* MPU6050 default I2C address is 0x68*/
 MPU6050 mpu;
-//MPU6050 mpu(0x69); // <-- use for AD0 high
+//MPU6050 mpu(0x69); //Use for AD0 high
+//MPU6050 mpu(0x68, &Wire1); //Use for AD0 low, but 2nd Wire (TWI/I2C) object.
 
-/* =========================================================================
-   NOTE: In addition to connection 5/3.3v, GND, SDA, and SCL, this sketch
-   depends on the MPU-6050's INT pin being connected to the ESP8266 GPIO15
-   pin.
- * ========================================================================= */
+/* OUTPUT FORMAT DEFINITION-------------------------------------------------------------------------------------------
+- Use "OUTPUT_READABLE_QUATERNION" for quaternion commponents in [w, x, y, z] format. Quaternion does not 
+suffer from gimbal lock problems but is harder to parse or process efficiently on a remote host or software 
+environment like Processing.
 
-// MPU control/status vars
-bool dmpReady = false;  // set true if DMP init was successful
-uint8_t mpuIntStatus;   // holds actual interrupt status byte from MPU
-uint8_t devStatus;      // return status after each device operation (0 = success, !0 = error)
-uint16_t packetSize;    // expected DMP packet size (default is 42 bytes)
-uint16_t fifoCount;     // count of all bytes currently in FIFO
-uint8_t fifoBuffer[64]; // FIFO storage buffer
+- Use "OUTPUT_READABLE_EULER" for Euler angles (in degrees) output, calculated from the quaternions coming 
+from the FIFO. EULER ANGLES SUFFER FROM GIMBAL LOCK PROBLEM.
 
-// orientation/motion vars
-Quaternion q;           // [w, x, y, z]         quaternion container
-VectorInt16 aa;         // [x, y, z]            accel sensor measurements
-VectorInt16 aaReal;     // [x, y, z]            gravity-free accel sensor measurements
-VectorInt16 aaWorld;    // [x, y, z]            world-frame accel sensor measurements
-VectorFloat gravity;    // [x, y, z]            gravity vector
+- Use "OUTPUT_READABLE_YAWPITCHROLL" for yaw/pitch/roll angles (in degrees) calculated from the quaternions
+coming from the FIFO. THIS REQUIRES GRAVITY VECTOR CALCULATION.
+YAW/PITCH/ROLL ANGLES SUFFER FROM GIMBAL LOCK PROBLEM.
 
+- Use "OUTPUT_READABLE_REALACCEL" for acceleration components with gravity removed. The accel reference frame
+is not compensated for orientation. +X will always be +X according to the sensor.
 
-// uncomment "OUTPUT_READABLE_QUATERNION" if you want to see the actual
-// quaternion components in a [w, x, y, z] format (not best for parsing
-// on a remote host such as Processing or something though)
-//#define OUTPUT_READABLE_QUATERNION
+- Use "OUTPUT_READABLE_WORLDACCEL" for acceleration components with gravity removed and adjusted for the world
+reference frame. Yaw is relative if there is no magnetometer present.
 
-// uncomment "OUTPUT_READABLE_EULER" if you want to see Euler angles
-// (in degrees) calculated from the quaternions coming from the FIFO.
-// Note that Euler angles suffer from gimbal lock (for more info, see
-// http://en.wikipedia.org/wiki/Gimbal_lock)
-//#define OUTPUT_READABLE_EULER
-
-// uncomment "OUTPUT_READABLE_YAWPITCHROLL" if you want to see the yaw/
-// pitch/roll angles (in degrees) calculated from the quaternions coming
-// from the FIFO. Note this also requires gravity vector calculations.
-// Also note that yaw/pitch/roll angles suffer from gimbal lock (for
-// more info, see: http://en.wikipedia.org/wiki/Gimbal_lock)
-//#define OUTPUT_READABLE_YAWPITCHROLL
-
-// uncomment "OUTPUT_READABLE_REALACCEL" if you want to see acceleration
-// components with gravity removed. This acceleration reference frame is
-// not compensated for orientation, so +X is always +X according to the
-// sensor, just without the effects of gravity. If you want acceleration
-// compensated for orientation, us OUTPUT_READABLE_WORLDACCEL instead.
-//#define OUTPUT_READABLE_REALACCEL
-
-// uncomment "OUTPUT_READABLE_WORLDACCEL" if you want to see acceleration
-// components with gravity removed and adjusted for the world frame of
-// reference (yaw is relative to initial orientation, since no magnetometer
-// is present in this case). Could be quite handy in some cases.
-//#define OUTPUT_READABLE_WORLDACCEL
-
-// uncomment "OUTPUT_TEAPOT_OSC" if you want output that matches the
-// format used for the InvenSense teapot demo
+-  Use "OUTPUT_TEAPOT_OSC" for output that matches the InvenSense teapot demo. 
+-------------------------------------------------------------------------------------------------------------------------------*/ 
 #define OUTPUT_TEAPOT_OSC
-
+//#define OUTPUT_READABLE_YAWPITCHROLL
+//#define OUTPUT_READABLE_QUATERNION
+//#define OUTPUT_READABLE_EULER
+//#define OUTPUT_READABLE_REALACCEL
+//#define OUTPUT_READABLE_WORLDACCEL
 
 #ifdef OUTPUT_READABLE_EULER
 float euler[3];         // [psi, theta, phi]    Euler angle container
 #endif
 #ifdef OUTPUT_READABLE_YAWPITCHROLL
-float ypr[3];           // [yaw, pitch, roll]   yaw/pitch/roll container and gravity vector
+float ypr[3];           // [yaw, pitch, roll]   Yaw/Pitch/Roll container and gravity vector
 #endif
 
-#define INTERRUPT_PIN 15 // use pin 15 on ESP8266
+#define INTERRUPT_PIN 15 //define the INT pin on your board
+
+/*---MPU6050 Control/Status Variables---*/
+bool DMPReady = false;  // Set true if DMP init was successful
+uint8_t MPUIntStatus;   // Holds actual interrupt status byte from MPU
+uint8_t devStatus;      // Return status after each device operation (0 = success, !0 = error)
+uint16_t packetSize;    // Expected DMP packet size (default is 42 bytes)
+uint16_t FIFOCount;     // Count of all bytes currently in FIFO
+uint8_t FIFOBuffer[64]; // FIFO storage buffer
+
+/*---Orientation/Motion Variables---*/ 
+Quaternion q;           // [w, x, y, z]         Quaternion container
+VectorInt16 aa;         // [x, y, z]            Accel sensor measurements
+VectorInt16 aaReal;     // [x, y, z]            Gravity-free accel sensor measurements
+VectorInt16 aaWorld;    // [x, y, z]            World-frame accel sensor measurements
+VectorFloat gravity;    // [x, y, z]            Gravity vector
 
 const char DEVICE_NAME[] = "mpu6050";
 
-WiFiUDP Udp;                                // A UDP instance to let us send and receive packets over UDP
-const IPAddress outIp(192, 168, 1, 11);     // remote IP to receive OSC
-const unsigned int outPort = 9999;          // remote port to receive OSC
+WiFiUDP UDP;                                // A  instance to let us send and receive packets over 
+const IPAddress outIp(192, 168, 1, 11);     // Remote IP to receive OSC
+const unsigned int outPort = 9999;          // Remote port to receive OSC
 
-// ================================================================
-// ===               INTERRUPT DETECTION ROUTINE                ===
-// ================================================================
-
-volatile bool mpuInterrupt = false;     // indicates whether MPU interrupt pin has gone high
-void ICACHE_RAM_ATTR dmpDataReady() {
-    mpuInterrupt = true;
+/*------Interrupt detection routine------*/
+volatile bool MPUInterrupt = false;     // Indicates whether MPU6050 interrupt pin has gone high
+void ICACHE_RAM_ATTR DMPDataReady() {
+  MPUInterrupt = true;
 }
 
-void mpu_setup()
-{
-  // join I2C bus (I2Cdev library doesn't do this automatically)
+void mpu_setup(){
 #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
   Wire.begin();
   Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
@@ -163,67 +121,183 @@ void mpu_setup()
   Fastwire::setup(400, true);
 #endif
 
-  // initialize device
+  // Initialize device
   Serial.println(F("Initializing I2C devices..."));
   mpu.initialize();
   pinMode(INTERRUPT_PIN, INPUT);
 
-  // verify connection
-  Serial.println(F("Testing device connections..."));
-  Serial.println(mpu.testConnection() ? F("MPU6050 connection successful") : F("MPU6050 connection failed"));
+  /*Verify connection*/
+  Serial.println(F("Testing MPU6050 connection..."));
+  if(mpu.testConnection() == false){
+    Serial.println("MPU6050 connection failed");
+    while(true);
+  }
+    else {
+    Serial.println("MPU6050 connection successful");
+  }
 
-  // load and configure the DMP
+  /* Initializate and configure the DMP*/
   Serial.println(F("Initializing DMP..."));
   devStatus = mpu.dmpInitialize();
 
-  // supply your own gyro offsets here, scaled for min sensitivity
-  mpu.setXGyroOffset(220);
-  mpu.setYGyroOffset(76);
-  mpu.setZGyroOffset(-85);
-  mpu.setZAccelOffset(1788); // 1688 factory default for my test chip
+  /* Supply your gyro offsets here, scaled for min sensitivity */
+  mpu.setXGyroOffset(0);
+  mpu.setYGyroOffset(0);
+  mpu.setZGyroOffset(0);
+  mpu.setZAccelOffset(0);
 
-  // make sure it worked (returns 0 if so)
+  /* Making sure it worked (returns 0 if so) */ 
   if (devStatus == 0) {
-    // turn on the DMP, now that it's ready
-    Serial.println(F("Enabling DMP..."));
+    mpu.CalibrateAccel(6);  // Calibration Time: generate offsets and calibrate our MPU6050
+    mpu.CalibrateGyro(6);
+    Serial.println("These are the Active offsets: ");
+    mpu.PrintActiveOffsets();
+    Serial.println(F("Enabling DMP..."));   //Turning ON DMP
     mpu.setDMPEnabled(true);
 
-    // enable Arduino interrupt detection
-    Serial.println(F("Enabling interrupt detection (Arduino external interrupt 0)..."));
-    attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), dmpDataReady, RISING);
-    mpuIntStatus = mpu.getIntStatus();
+    /*Enable Arduino interrupt detection*/
+    Serial.print(F("Enabling interrupt detection (Arduino external interrupt "));
+    Serial.print(digitalPinToInterrupt(INTERRUPT_PIN));
+    Serial.println(F(")..."));
+    attachInterrupt(digitalPinToInterrupt(INTERRUPT_PIN), DMPDataReady, RISING);
+    MPUIntStatus = mpu.getIntStatus();
 
-    // set our DMP Ready flag so the main loop() function knows it's okay to use it
+    /* Set the DMP Ready flag so the main loop() function knows it is okay to use it */
     Serial.println(F("DMP ready! Waiting for first interrupt..."));
-    dmpReady = true;
-
-    // get expected DMP packet size for later comparison
-    packetSize = mpu.dmpGetFIFOPacketSize();
-  } else {
-    // ERROR!
-    // 1 = initial memory load failed
-    // 2 = DMP configuration updates failed
-    // (if it's going to break, usually the code will be 1)
-    Serial.print(F("DMP Initialization failed (code "));
+    DMPReady = true;
+    packetSize = mpu.dmpGetFIFOPacketSize(); //Get expected DMP packet size for later comparison
+  } 
+  else {
+    Serial.print(F("DMP Initialization failed (code ")); //Print the error code
     Serial.print(devStatus);
     Serial.println(F(")"));
+    // 1 = initial memory load failed
+    // 2 = DMP configuration updates failed
   }
 }
 
-void setup(void)
+void mpu_loop()
 {
-  Serial.begin(115200);
+  if (!DMPReady) return; // Stop the program if DMP programming fails.
+  if (!MPUInterrupt && FIFOCount < packetSize) return; // Wait for MPU interrupt or extra packet(s) available
+
+  /*Reset interrupt flag and get INT_STATUS byte*/
+  MPUInterrupt = false;
+  MPUIntStatus = mpu.getIntStatus();
+
+  FIFOCount = mpu.getFIFOCount();  // Get current FIFO count
+
+  /*Check for overflow (this should never happen unless our code is too inefficient)*/
+  if ((MPUIntStatus & 0x10) || FIFOCount == 1024) {
+    mpu.resetFIFO();     //Reset so we can continue cleanly
+    Serial.println(F("FIFO overflow!"));
+    //*Otherwise, check for DMP data ready interrupt (this should happen frequently)*/
+  } 
+  else if (MPUIntStatus & 0x02) {
+    while (FIFOCount < packetSize) FIFOCount = mpu.getFIFOCount();    // Wait for correct available data length, should be a VERY short wait
+    mpu.getFIFOBytes(FIFOBuffer, packetSize);    //Read a packet from FIFO
+    // track FIFO count here in case there is > 1 packet available
+    // (this lets us immediately read more without waiting for an interrupt)
+    FIFOCount -= packetSize;
+    #ifdef OUTPUT_READABLE_QUATERNION
+      /* Display Quaternion values in easy matrix form: [w, x, y, z] */
+      mpu.dmpGetQuaternion(&q, FIFOBuffer);
+      Serial.print("quat\t");
+      Serial.print(q.w);
+      Serial.print("\t");
+      Serial.print(q.x);
+      Serial.print("\t");
+      Serial.print(q.y);
+      Serial.print("\t");
+      Serial.println(q.z);
+    #endif
+
+    #ifdef OUTPUT_TEAPOT_OSC
+      #ifndef OUTPUT_READABLE_QUATERNION
+        /* Display Quaternion values in easy matrix form: [w, x, y, z] */
+        mpu.dmpGetQuaternion(&q, FIFOBuffer);
+      #endif
+      /*Send OSC message*/
+      OSCMessage msg("/imuquat");
+      msg.add((float)q.w);
+      msg.add((float)q.x);
+      msg.add((float)q.y);
+      msg.add((float)q.z);
+
+      UDP.beginPacket(outIp, outPort);
+      msg.send(UDP);
+      UDP.endPacket();
+      msg.empty();
+    #endif
+
+    #ifdef OUTPUT_READABLE_EULER
+      /* Display Euler angles in degrees */
+      mpu.dmpGetQuaternion(&q, FIFOBuffer);
+      mpu.dmpGetEuler(euler, &q);
+      Serial.print("euler\t");
+      Serial.print(euler[0] * 180/M_PI);
+      Serial.print("\t");
+      Serial.print(euler[1] * 180/M_PI);
+      Serial.print("\t");
+      Serial.println(euler[2] * 180/M_PI);
+    #endif
+
+    #ifdef OUTPUT_READABLE_YAWPITCHROLL
+      /* Display Euler angles in degrees */
+      mpu.dmpGetQuaternion(&q, FIFOBuffer);
+      mpu.dmpGetGravity(&gravity, &q);
+      mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
+      Serial.print("ypr\t");
+      Serial.print(ypr[0] * 180/M_PI);
+      Serial.print("\t");
+      Serial.print(ypr[1] * 180/M_PI);
+      Serial.print("\t");
+      Serial.println(ypr[2] * 180/M_PI);
+    #endif
+
+    #ifdef OUTPUT_READABLE_REALACCEL
+      /* Display real acceleration, adjusted to remove gravity */
+      mpu.dmpGetQuaternion(&q, FIFOBuffer);
+      mpu.dmpGetAccel(&aa, FIFOBuffer);
+      mpu.dmpGetGravity(&gravity, &q);
+      mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+      Serial.print("areal\t");
+      Serial.print(aaReal.x);
+      Serial.print("\t");
+      Serial.print(aaReal.y);
+      Serial.print("\t");
+      Serial.println(aaReal.z);
+    #endif
+
+    #ifdef OUTPUT_READABLE_WORLDACCEL
+      /* Display initial world-frame acceleration, adjusted to remove gravity
+      and rotated based on known orientation from Quaternion */
+      mpu.dmpGetQuaternion(&q, FIFOBuffer);
+      mpu.dmpGetAccel(&aa, FIFOBuffer);
+      mpu.dmpGetGravity(&gravity, &q);
+      mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
+      mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &q);
+      Serial.print("aworld\t");
+      Serial.print(aaWorld.x);
+      Serial.print("\t");
+      Serial.print(aaWorld.y);
+      Serial.print("\t");
+      Serial.println(aaWorld.z);
+    #endif
+  }
+}
+
+void setup(){
+  Serial.begin(115200); //115200 is required for Teapot Demo output
   Serial.println(F("\nOrientation Sensor OSC output")); Serial.println();
 
-  //WiFiManager
-  //Local intialization. Once its business is done, there is no need to keep it around
-  WiFiManager wifiManager;
-  //reset saved settings
-  //wifiManager.resetSettings();
+  /*WiFiManager*/
+  WiFiManager wifiManager; // Initializate WiFi Manager
+  //wifiManager.resetSettings();    //Reset saved settings
 
-  //fetches ssid and pass from eeprom and tries to connect
-  //if it does not connect it starts an access point with the specified name
-  //and goes into a blocking loop awaiting configuration
+  /*Fetches ssid and pass from eeprom and tries to connect
+  if it does not connect it starts an access point with the specified name
+  and goes into a blocking loop awaiting configuration*/
   wifiManager.autoConnect(DEVICE_NAME);
 
   Serial.print(F("WiFi connected! IP address: "));
@@ -232,139 +306,10 @@ void setup(void)
   mpu_setup();
 }
 
-void mpu_loop()
-{
-  // if programming failed, don't try to do anything
-  if (!dmpReady) return;
-
-  // wait for MPU interrupt or extra packet(s) available
-  if (!mpuInterrupt && fifoCount < packetSize) return;
-
-  // reset interrupt flag and get INT_STATUS byte
-  mpuInterrupt = false;
-  mpuIntStatus = mpu.getIntStatus();
-
-  // get current FIFO count
-  fifoCount = mpu.getFIFOCount();
-
-  // check for overflow (this should never happen unless our code is too inefficient)
-  if ((mpuIntStatus & 0x10) || fifoCount == 1024) {
-    // reset so we can continue cleanly
-    mpu.resetFIFO();
-    Serial.println(F("FIFO overflow!"));
-
-    // otherwise, check for DMP data ready interrupt (this should happen frequently)
-  } else if (mpuIntStatus & 0x02) {
-    // wait for correct available data length, should be a VERY short wait
-    while (fifoCount < packetSize) fifoCount = mpu.getFIFOCount();
-
-    // read a packet from FIFO
-    mpu.getFIFOBytes(fifoBuffer, packetSize);
-
-    // track FIFO count here in case there is > 1 packet available
-    // (this lets us immediately read more without waiting for an interrupt)
-    fifoCount -= packetSize;
-
-#ifdef OUTPUT_READABLE_QUATERNION
-    // display quaternion values in easy matrix form: w x y z
-    mpu.dmpGetQuaternion(&q, fifoBuffer);
-    Serial.print("quat\t");
-    Serial.print(q.w);
-    Serial.print("\t");
-    Serial.print(q.x);
-    Serial.print("\t");
-    Serial.print(q.y);
-    Serial.print("\t");
-    Serial.println(q.z);
-#endif
-
-#ifdef OUTPUT_TEAPOT_OSC
-#ifndef OUTPUT_READABLE_QUATERNION
-    // display quaternion values in easy matrix form: w x y z
-    mpu.dmpGetQuaternion(&q, fifoBuffer);
-#endif
-    // Send OSC message
-    OSCMessage msg("/imuquat");
-    msg.add((float)q.w);
-    msg.add((float)q.x);
-    msg.add((float)q.y);
-    msg.add((float)q.z);
-
-    Udp.beginPacket(outIp, outPort);
-    msg.send(Udp);
-    Udp.endPacket();
-
-    msg.empty();
-#endif
-
-#ifdef OUTPUT_READABLE_EULER
-    // display Euler angles in degrees
-    mpu.dmpGetQuaternion(&q, fifoBuffer);
-    mpu.dmpGetEuler(euler, &q);
-    Serial.print("euler\t");
-    Serial.print(euler[0] * 180/M_PI);
-    Serial.print("\t");
-    Serial.print(euler[1] * 180/M_PI);
-    Serial.print("\t");
-    Serial.println(euler[2] * 180/M_PI);
-#endif
-
-#ifdef OUTPUT_READABLE_YAWPITCHROLL
-    // display Euler angles in degrees
-    mpu.dmpGetQuaternion(&q, fifoBuffer);
-    mpu.dmpGetGravity(&gravity, &q);
-    mpu.dmpGetYawPitchRoll(ypr, &q, &gravity);
-    Serial.print("ypr\t");
-    Serial.print(ypr[0] * 180/M_PI);
-    Serial.print("\t");
-    Serial.print(ypr[1] * 180/M_PI);
-    Serial.print("\t");
-    Serial.println(ypr[2] * 180/M_PI);
-#endif
-
-#ifdef OUTPUT_READABLE_REALACCEL
-    // display real acceleration, adjusted to remove gravity
-    mpu.dmpGetQuaternion(&q, fifoBuffer);
-    mpu.dmpGetAccel(&aa, fifoBuffer);
-    mpu.dmpGetGravity(&gravity, &q);
-    mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-    Serial.print("areal\t");
-    Serial.print(aaReal.x);
-    Serial.print("\t");
-    Serial.print(aaReal.y);
-    Serial.print("\t");
-    Serial.println(aaReal.z);
-#endif
-
-#ifdef OUTPUT_READABLE_WORLDACCEL
-    // display initial world-frame acceleration, adjusted to remove gravity
-    // and rotated based on known orientation from quaternion
-    mpu.dmpGetQuaternion(&q, fifoBuffer);
-    mpu.dmpGetAccel(&aa, fifoBuffer);
-    mpu.dmpGetGravity(&gravity, &q);
-    mpu.dmpGetLinearAccel(&aaReal, &aa, &gravity);
-    mpu.dmpGetLinearAccelInWorld(&aaWorld, &aaReal, &q);
-    Serial.print("aworld\t");
-    Serial.print(aaWorld.x);
-    Serial.print("\t");
-    Serial.print(aaWorld.y);
-    Serial.print("\t");
-    Serial.println(aaWorld.z);
-#endif
-  }
-}
-
-/**************************************************************************/
-/*
-    Arduino loop function, called once 'setup' is complete (your own code
-    should go here)
-*/
-/**************************************************************************/
-void loop(void)
-{
+void loop(){
   if (WiFi.status() != WL_CONNECTED) {
     Serial.println();
-    Serial.println("*** Disconnected from AP so rebooting ***");
+    Serial.println("*** Disconnected from AP, rebooting ***");
     Serial.println();
     #if defined(ESP8266)
     ESP.reset();
@@ -372,6 +317,5 @@ void loop(void)
     ESP.restart();
     #endif
   }
-
   mpu_loop();
 }

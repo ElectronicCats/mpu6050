@@ -1,10 +1,10 @@
 /*
   MPU6050 Raw
 
-  A code for obtaining raw data from the MPU6050 module with option to
+  A code for obtaining raw data from the MPU6050 module with the option to
   modify the data output format.
 
-  Find the full MPU6050 library docummentation here:
+  Find the full MPU6050 library documentation here:
   https://github.com/ElectronicCats/mpu6050/wiki
 */
 #include "I2Cdev.h"
@@ -80,7 +80,7 @@ void setup() {
 }
 
 void loop() {
-  /* Read raw accel/gyro dara from the module. Other methods commented*/
+  /* Read raw accel/gyro data from the module. Other methods commented*/
   mpu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz);
   //mpu.getAcceleration(&ax, &ay, &az);
   //mpu.getRotation(&gx, &gy, &gz);

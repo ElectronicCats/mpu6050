@@ -2,22 +2,22 @@
   MPU6050 DMP6
 
   Digital Motion Processor or DMP performs complex motion processing tasks.
-  - Fuses the data from the accel, gyro and extarnal magnetometer if applies, 
-  compesating individual sensor noise and errors.
-  - Detect specific types of motion without the need to continuosly monitor 
+  - Fuses the data from the accel, gyro, and external magnetometer if applied, 
+  compensating individual sensor noise and errors.
+  - Detect specific types of motion without the need to continuously monitor 
   raw sensor data with a microcontroller.
   - Reduce workload on the microprocessor.
   - Output processed data such as quaternions, Euler angles, and gravity vectors.
 
-  Send the data trough a HTTP request using the Arduino Ethernet Shield
+  Send the data through an HTTP request using the Arduino Ethernet Shield
 
-  This code is compatible with teapot propject by using the teapot output format.
+  This code is compatible with the teapot project by using the teapot output format.
 
   Circuit: In addition to connection 3.3v, GND, SDA, and SCL, this sketch
   depends on the MPU6050's INT pin being connected to the Arduino's
-  external interrupt #0 pin.. 
+  external interrupt #0 pin. 
     
-  Find the full MPU6050 library docummentation here:
+  Find the full MPU6050 library documentation here:
   https://github.com/ElectronicCats/mpu6050/wiki
 */
 #include <Ethernet.h>   // Arduino Ethernet Shield
@@ -42,9 +42,9 @@ String HTTP_req;                                    // Stores the HTTP request
 EthernetServer server(80);
 
 /* OUTPUT FORMAT DEFINITION-------------------------------------------------------------------------------------------
-- Use "OUTPUT_READABLE_QUATERNION" for quaternion commponents in [w, x, y, z] format. Quaternion do not 
-suffer from gimbal lock problem but is harder to parse or process efficiently on a remotehost or software 
-enviroments like Porcessing.
+- Use "OUTPUT_READABLE_QUATERNION" for quaternion commponents in [w, x, y, z] format. Quaternion does not 
+suffer from gimbal lock problems but is harder to parse or process efficiently on a remote host or software 
+environment like Processing.
 
 - Use "OUTPUT_READABLE_EULER" for Euler angles (in degrees) output, calculated from the quaternions coming 
 from the FIFO. EULER ANGLES SUFFER FROM GIMBAL LOCK PROBLEM.
@@ -54,10 +54,10 @@ coming from the FIFO. THIS REQUIRES GRAVITY VECTOR CALCULATION.
 YAW/PITCH/ROLL ANGLES SUFFER FROM GIMBAL LOCK PROBLEM.
 
 - Use "OUTPUT_READABLE_REALACCEL" for acceleration components with gravity removed. The accel reference frame
-is not compesated for orientation. +X will always be +X according to the sensor.
+is not compensated for orientation. +X will always be +X according to the sensor.
 
 - Use "OUTPUT_READABLE_WORLDACCEL" for acceleration components with gravity removed and adjusted for the world
-refernce frame. Yaw is relative if there is no magnetometer present.
+reference frame. Yaw is relative if there is no magnetometer present.
 
 -  Use "OUTPUT_TEAPOT" for output that matches the InvenSense teapot demo. 
 -------------------------------------------------------------------------------------------------------------------------------*/ 
@@ -102,7 +102,7 @@ void setup() {
 
   #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
     Wire.begin();
-    Wire.setClock(400000); // 400kHz I2C clock. Comment this line if having compilation difficulties
+    Wire.setClock(400000); // 400kHz I2C clock. Comment on this line if having compilation difficulties
   #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
     Fastwire::setup(400, true);
   #endif
@@ -202,7 +202,7 @@ void loop() {
   } 
   /*Otherwise, check for DMP data ready interrupt (this should happen frequently)*/
   else if (MPUIntStatus & (1  <<  MPU6050_INTERRUPT_DMP_INT_BIT)) {
-    while (FIFOCount < packetSize) FIFOCount = mpu.getFIFOCount();  //Wait for correct available data length, should be a VERY short wait
+    while (FIFOCount < packetSize) FIFOCount = mpu.getFIFOCount();  //Wait for the correct available data length, should be a VERY short wait
       mpu.getFIFOBytes(FIFOBuffer, packetSize);   // Read a packet from FIFO, then clear the buffer
       //mpu.resetFIFO();
       /*Track FIFO count here in case there is > 1 packet available
@@ -302,7 +302,7 @@ void serversend(){
     //boolean currentLineIsBlank = true;
     while (client.connected()){
       if (client.available()) {   // Client data available to read
-        char c = client.read(); // Read 1 byte (character) from client
+        char c = client.read(); // Read 1 byte (character) from the client
         HTTP_req += c;          // Save the HTTP request 1 char at a time
         /*  
           Last line of client request is blank and ends with \n
@@ -348,7 +348,7 @@ void serversend(){
             client.println("</html>");
           }
           Serial.print(HTTP_req); // Display received HTTP request on serial port
-          HTTP_req = "";          // Finished with request, empty string
+          HTTP_req = "";          // Finished with the request, empty string
           client.stop();          // Close the connection
           break;
         }              

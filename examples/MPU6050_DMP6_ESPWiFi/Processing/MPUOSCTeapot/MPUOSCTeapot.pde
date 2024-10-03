@@ -4,8 +4,8 @@
     The original demo uses serial port I/O which has been replaced with
     OSC UDP messages in this sketch.
     
-    The MPU6050 is connected to an ESP8266 with battery so it is completely
-    wire free.
+    The MPU6050 is connected to an ESP8266 with a battery so it is completely
+    wire-free.
 
     Tested on Processing 3.3.5 running on Ubuntu Linux 14.04
 
@@ -15,7 +15,7 @@
     1. Download both libraries from the corresponding links:
         * Open Sound Control library: https://sojamo.de/libraries/oscP5/
         * Download from https://github.com/postspectacular/toxiclibs/releases
-    2.Extract into [userdir]/Documents/Processing/libraries (location may be different on Mac/Linux)
+    2. Extract into [userdir]/Documents/Processing/libraries (location may be different on Mac/Linux)
     3. Restart Processing if needed 
  */
 
@@ -45,9 +45,9 @@ void setup() {
     oscP5.plug(this, "imu", "/imuquat");
 }
 
-/* Incoming OSC message are forwarded to the oscEvent method. */
+/* Incoming OSC messages are forwarded to the oscEvent method. */
 void oscEvent(OscMessage theOscMessage) {
-  /* Print the address pattern and the typetag of the received OscMessage */
+  /* Print the address pattern and the type tag of the received OscMessage */
   
   /*
   print("### received an osc message.");

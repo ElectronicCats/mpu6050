@@ -1,13 +1,13 @@
 /*
   MCU Powercycle DMP6
 
-  Understand the use of function dmpSetFIFOPacketSize() so the MPU6050 intiantes faster
-  when the MCU gas been reset or powercycled but MPU6050 has not.
+  Understand the use of function dmpSetFIFOPacketSize() so the MPU6050 initiates faster
+  when the MCU has been reset or powercycled but MPU6050 has not.
 
   This example is designed for the LGT8F328. The MCU will enter deep sleep for 1 second, erasing
   the RAM, causing the MCU to restart on wakeup. 
 
-  Find the full MPU6050 library docummentation here:
+  Find the full MPU6050 library documentation here:
   https://github.com/ElectronicCats/mpu6050/wiki
 
   created 19 Sep 2023
@@ -37,7 +37,7 @@ uint32_t startTime;
 void setup() {
   #if I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE
     Wire.begin();
-    Wire.setClock(400000);  // 400kHz I2C clock. Comment this line if having compilation difficulties
+    Wire.setClock(400000);  // 400kHz I2C clock. Comment on this line if having compilation difficulties
   #elif I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE
     Fastwire::setup(400, true);
   #endif
@@ -46,7 +46,7 @@ void setup() {
 
   /*
   If MotionDetectionDuration is not 0 (default value) and instead a value we defined (1), then is know 
-  that the mpu6050 has not been reset or powercycled only the MCU has been.
+  that the mpu6050 has not been reset or power-cycled only the MCU has been.
   We just have to set the MCU to know the packet size since this value was only retained previously in 
   the MCU RAM.
   */

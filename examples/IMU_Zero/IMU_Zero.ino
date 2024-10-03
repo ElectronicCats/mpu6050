@@ -1,29 +1,29 @@
 /*
   IMU Zero
 
-  Calibrates the MPU6050 to compesate for measurements deviations or errors that may
+  Calibrates the MPU6050 to compensate for measurement deviations or errors that may
   occur due to factors such as gyroscope and accelerometer offset.
 
   When running this example, the code adjusts the MPU6050 sensor's acceleration (X,Y,Z)
-  and rotation (gyroscope) axis offset values to ensure that the reading are as accurate as
+  and rotation (gyroscope) axis offset values to ensure that the readings are as accurate as
   possible when the device is at rest.
 
-  To get better result consider:
+  To get better results consider:
   1. The MPU6050 module is working fine.
   2. Put the MPU6050 on a flat and horizontal surface, and leave it operating for 
   5-10 minutes so its temperature gets stabilized.
   4. Is in a location where the pull of gravity is 1g.
 
-  During the execution it will generate a dozen of output, showing that for each of the 6 
+  During the execution it will generate a dozen outputs, showing that for each of the 6 
   desired offsets, it is:
-  - First, trying to find two estimates, one too low and one too high.
+  - First, try to find two estimates, one too low and one too high.
   - Closing in until the bracket can't be made smaller.
 
-  The line just above the "done" (it will take a few minutes to get there) describe the 
+  The line just above the "done" (it will take a few minutes to get there) describes the 
   optimum offsets for the X acceleration, Y acceleration, Z acceleration, X gyro, Y gyro, 
   and Z gyro, respectively.
 
-  Find the full MPU6050 library docummentation here:
+  Find the full MPU6050 library documentation here:
   https://github.com/ElectronicCats/mpu6050/wiki
 */
 
@@ -34,7 +34,7 @@
 MPU6050 mpu;
 // MPU6050 mpu(0x69); // <-- use for AD0 high
 
-const int usDelay = 3150; // Delay in ms to hold the samplig at 200Hz
+const int usDelay = 3150; // Delay in ms to hold the sampling at 200Hz
 const int NFast = 1000; // Number of quick readings for averaging, the higher the better
 const int NSlow = 10000; // Number of slow readings for averaging, the higher the better
 const int LinesBetweenHeaders = 5;
@@ -99,8 +99,8 @@ void Initialize() {
   Serial.println("\nPID tuning Each Dot = 100 readings");
   /*
   PID tuning (actually PI) works like this: changing the offset in the MPU6050 gives instant results, 
-  allowing to use the Proportional and Integral parts of the PID to find the ideal offsets. 
-  The Integral uses the error from the set-point (which is zero) and adds a fraction of this error to 
+  allowing us to use the Proportional and Integral parts of the PID to find the ideal offsets. 
+  The Integral uses the error from the set point (which is zero) and adds a fraction of this error to 
   the integral value. Each reading reduces the error towards the desired offset. The greater 
   the error, the more we adjust the integral value. 
   
@@ -262,7 +262,7 @@ void SetOffsets(int TheOffsets[6]) {
   mpu.setZGyroOffset(TheOffsets[iGz]);
 }
 
-/*Print the progress of the reading averages, add formtaing for better visualization*/
+/*Print the progress of the reading averages, add formatting for better visualization*/
 void ShowProgress() {
  /*Header*/
   if (LinesOut >= LinesBetweenHeaders) { 

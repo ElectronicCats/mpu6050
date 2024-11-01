@@ -66,10 +66,10 @@ void MPU6050_Base::initialize() {
     setClockSource(MPU6050_CLOCK_PLL_XGYRO);
 
     setFullScaleGyroRange(MPU6050_GYRO_FS_250);
-    gyroscopeResolution = 250.0 / 16384.0;
+    gyroscopeResolution = 250.0 / 32768.0;
 
     setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
-    accelerationResolution = 2.0 / 16384.0;
+    accelerationResolution = 2.0 / 32768.0;
 
     setSleepEnabled(false); // thanks to Jack Elston for pointing this one out!
 }
@@ -92,54 +92,54 @@ void MPU6050_Base::initialize(ACCEL_FS accelRange, GYRO_FS gyroRange) {
     {
     case ACCEL_FS::A2G:
         setFullScaleAccelRange(MPU6050_ACCEL_FS_2);
-        accelerationResolution = 2.0 / 16384.0;
+	accelerationResolution = 2.0 / 32768.0;
 	break;
 
     case ACCEL_FS::A4G:
         setFullScaleAccelRange(MPU6050_ACCEL_FS_4);
-        accelerationResolution = 4.0 / 16384.0;
+	accelerationResolution = 4.0 / 32768.0;
 	break;
 
     case ACCEL_FS::A8G:
         setFullScaleAccelRange(MPU6050_ACCEL_FS_8);
-        accelerationResolution = 8.0 / 16384.0;
+        accelerationResolution = 8.0 / 32768.0;
 	break;
 
     case ACCEL_FS::A16G:
         setFullScaleAccelRange(MPU6050_ACCEL_FS_16);
-        accelerationResolution = 16.0 / 16384.0;
+        accelerationResolution = 16.0 / 32768.0;
 	break;
     default:
       Serial.println("Init accelRange not valid, setting maximum accel range");
       setFullScaleAccelRange(MPU6050_ACCEL_FS_16);
-      accelerationResolution = 16.0 / 16384.0;
+      accelerationResolution = 16.0 / 32768.0;
     }
 
     switch (gyroRange) 
     {
     case GYRO_FS::G250DPS:
         setFullScaleGyroRange(MPU6050_GYRO_FS_250);
-        gyroscopeResolution = 250.0 / 16384.0;
+        gyroscopeResolution = 250.0 / 32768.0;
 	break;
 
     case GYRO_FS::G500DPS:
         setFullScaleGyroRange(MPU6050_GYRO_FS_500);
-        gyroscopeResolution = 500.0 / 16384.0;
+        gyroscopeResolution = 500.0 / 32768.0;
 	break;
 
     case GYRO_FS::G1000DPS:
         setFullScaleGyroRange(MPU6050_GYRO_FS_1000);
-        gyroscopeResolution = 1000.0 / 16384.0;
+        gyroscopeResolution = 1000.0 / 32768.0;
 	break;
 
     case GYRO_FS::G2000DPS:
         setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
-        gyroscopeResolution = 2000.0 / 16384.0;
+        gyroscopeResolution = 2000.0 / 32768.0;
 	break;
     default:
       Serial.println("Init gyroRange not valid, setting maximum gyro range");
       setFullScaleGyroRange(MPU6050_GYRO_FS_2000);
-      gyroscopeResolution = 2000.0 / 16384.0;
+      gyroscopeResolution = 2000.0 / 32768.0;
     }
 
     setSleepEnabled(false); // thanks to Jack Elston for pointing this one out!

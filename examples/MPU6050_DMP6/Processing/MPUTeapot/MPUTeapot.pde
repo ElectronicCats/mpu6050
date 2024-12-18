@@ -42,7 +42,7 @@ void setup() {
     smooth();
   
     println(Serial.list()); //Display serial port list for debugging/clarity
-    tring portName = "COMXX"; //Define the port, port format may be different on Linux/Mac
+    String portName = "COMXX"; //Define the port, port format may be different on Linux/Mac
     port = new Serial(this, portName, 115200); // Open the serial port
     port.write('r'); // Send a single character to trigger DMP init/start
 }

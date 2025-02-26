@@ -163,7 +163,7 @@ float MPU6050_Base::get_gyro_resolution() {
  */
 bool MPU6050_Base::testConnection() {
   uint8_t deviceId = getDeviceID();
-  return (deviceId == 0x34) || (deviceId == 0xC);
+  return (deviceId == 0x34) || (deviceId == 0xC) || (deviceId == 0x3A);
 }
 
 // AUX_VDDIO register (InvenSense demo code calls this RA_*G_OFFS_TC)

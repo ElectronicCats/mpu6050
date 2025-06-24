@@ -332,21 +332,21 @@ void MPU6050_Base::setFullScaleGyroRange(uint8_t range) {
     
     switch(range) {
         case MPU6050_GYRO_FS_250:
-            gyroscopeResolution = 250.0 / 16384.0;
+            gyroscopeResolution = 250.0 / 32768.0;
         break;
         case MPU6050_GYRO_FS_500:
-            gyroscopeResolution = 500.0 / 16384.0;
+            gyroscopeResolution = 500.0 / 32768.0;
         break;
         case MPU6050_GYRO_FS_1000:
-            gyroscopeResolution = 1000.0 / 16384.0;
+            gyroscopeResolution = 1000.0 / 32768.0;
         break;
         case MPU6050_GYRO_FS_2000:
-            gyroscopeResolution = 2000.0 / 16384.0;
+            gyroscopeResolution = 2000.0 / 32768.0;
         break;
         default:
             Serial.println("Init gyroRange not valid, setting maximum gyro range");
             range = MPU6050_GYRO_FS_2000;
-            gyroscopeResolution = 2000.0 / 16384.0;
+            gyroscopeResolution = 2000.0 / 32768.0;
         break;
     }
     
@@ -487,21 +487,21 @@ void MPU6050_Base::setFullScaleAccelRange(uint8_t range) {
     
     switch(range) {
         case MPU6050_ACCEL_FS_2:
-            accelerationResolution = 2.0 / 16384.0;
+            accelerationResolution = 2.0 / 32768.0;
         break;
         case MPU6050_ACCEL_FS_4:
-            accelerationResolution = 4.0 / 16384.0;
+            accelerationResolution = 4.0 / 32768.0;
         break;
         case MPU6050_ACCEL_FS_8:
-            accelerationResolution = 8.0 / 16384.0;
+            accelerationResolution = 8.0 / 32768.0;
         break;
         case MPU6050_ACCEL_FS_16:
-            accelerationResolution = 16.0 / 16384.0;
+            accelerationResolution = 16.0 / 32768.0;
         break;
         default:
             Serial.println("Init accelRange not valid, setting maximum accel range");
             range = MPU6050_ACCEL_FS_16;
-            accelerationResolution = 16.0 / 16384.0;
+            accelerationResolution = 16.0 / 32768.0;
         break;
     }
     
@@ -3445,7 +3445,7 @@ void MPU6050_Base::PID(uint8_t ReadAddress, float kP,float kI, uint8_t Loops){
 	int16_t eSample;
 	uint32_t eSum;
 	uint16_t gravity = 8192; // prevent uninitialized compiler warning
-	if (ReadAddress == 0x3B) gravity = 16384 >> getFullScaleAccelRange();
+	if (ReadAddress == 0x3B) gravity = 32768 >> getFullScaleAccelRange();
 	Serial.write('>');
 	for (int i = 0; i < 3; i++) {
 		I2Cdev::readWords(devAddr, SaveAddress + (i * shift), 1, (uint16_t *)&Data, I2Cdev::readTimeout, wireObj); // reads 1 or more 16 bit integers (Word)
